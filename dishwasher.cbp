@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="prg" />
+		<Option pch_mode="2" />
+		<Option compiler="clang" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/pc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="clang" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add library="/usr/lib/libEASTL.a" />
+					<Add library="/usr/lib/libcurses.so" />
+					<Add library="/usr/lib/libpthread.so" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-m64" />
+			<Add option="-Wall" />
+			<Add option="-g" />
+			<Add option="-fexceptions -std=c++17" />
+			<Add directory="src" />
+		</Compiler>
+		<Linker>
+			<Add option="-m64" />
+		</Linker>
+		<Unit filename="src/automat.cpp" />
+		<Unit filename="src/automat.h" />
+		<Unit filename="src/base.cpp" />
+		<Unit filename="src/base.h" />
+		<Unit filename="src/dishwash-config.h" />
+		<Unit filename="src/dishwash.cpp" />
+		<Unit filename="src/dishwash.h" />
+		<Unit filename="src/display.h" />
+		<Unit filename="src/input.h" />
+		<Unit filename="src/logic.cpp" />
+		<Unit filename="src/logic.h" />
+		<Unit filename="src/output.h" />
+		<Unit filename="src/staticerror.cpp" />
+		<Unit filename="src/staticerror.h" />
+		<Unit filename="src/test-display.cpp" />
+		<Unit filename="src/test-input.cpp" />
+		<Unit filename="src/test-main.cpp" />
+		<Unit filename="src/test-output.cpp" />
+		<Unit filename="src/timer.h" />
+		<Extensions>
+			<envvars />
+			<code_completion />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

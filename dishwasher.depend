@@ -1,0 +1,94 @@
+# depslib dependency file v1.0
+1498317149 source:/home/balazs/munka/mosogatogep/prg/src/automat.cpp
+	"automat.h"
+	"dishwash.h"
+
+1544343087 /home/balazs/munka/mosogatogep/prg/src/automat.h
+	"base.h"
+
+1544383181 /home/balazs/munka/mosogatogep/prg/src/base.h
+	<chrono>
+	<atomic>
+	<thread>
+	<functional>
+	<boost/lockfree/queue.hpp>
+	"dishwash-config.h"
+
+1544343183 /home/balazs/munka/mosogatogep/prg/src/dishwash-config.h
+
+1544343225 /home/balazs/munka/mosogatogep/prg/src/dishwash.h
+	<fstream>
+	<array>
+	"base.h"
+	"input.h"
+	"staticerror.h"
+	"logic.h"
+	"display.h"
+	"automat.h"
+	"output.h"
+
+1544343557 /home/balazs/munka/mosogatogep/prg/src/input.h
+	"base.h"
+
+1544343447 /home/balazs/munka/mosogatogep/prg/src/staticerror.h
+	"base.h"
+
+1544343340 /home/balazs/munka/mosogatogep/prg/src/logic.h
+	"base.h"
+
+1544343259 /home/balazs/munka/mosogatogep/prg/src/display.h
+	<thread>
+	<atomic>
+	"dishwash-config.h"
+	"input.h"
+	"logic.h"
+
+1544343415 /home/balazs/munka/mosogatogep/prg/src/output.h
+	"base.h"
+
+1498317149 source:/home/balazs/munka/mosogatogep/prg/src/base.cpp
+	"dishwash.h"
+
+1498333394 source:/home/balazs/munka/mosogatogep/prg/src/dishwash.cpp
+	<signal.h>
+	<iostream>
+	<curses.h>
+	"dishwash.h"
+
+1497693687 source:/home/balazs/munka/mosogatogep/prg/src/logic.cpp
+	"logic.h"
+	"dishwash.h"
+
+1496658956 source:/home/balazs/munka/mosogatogep/prg/src/staticerror.cpp
+	"staticerror.h"
+	"dishwash.h"
+
+1498317193 source:/home/balazs/munka/mosogatogep/prg/src/test-display.cpp
+	<curses.h>
+	<string.h>
+	"display.h"
+	"dishwash.h"
+
+1498333087 source:/home/balazs/munka/mosogatogep/prg/src/test-input.cpp
+	<curses.h>
+	"input.h"
+	"dishwash.h"
+	<iostream>
+
+1544360455 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
+	"timer.h"
+	"dishwash.h"
+	<curses.h>
+	<unistd.h>
+	<iostream>
+
+1498317148 source:/home/balazs/munka/mosogatogep/prg/src/test-output.cpp
+	"output.h"
+	"dishwash.h"
+
+1544361235 /home/balazs/munka/mosogatogep/prg/src/timer.h
+	<thread>
+	<chrono>
+	<optional>
+	<iostream>
+
