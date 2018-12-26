@@ -7,11 +7,13 @@
  * based on measured values and desired values. */
 class Automat final : public Component {
 private:
-  static constexpr int32_t cMaxMeasuredTimeCount                = 30;
-  static constexpr int32_t cTimerFinishSearchSelectPosition     =  0;
-  static constexpr int32_t cTimerDecelerateSearchSelectPosition =  1;
-  static constexpr int32_t cTimerSprayChangeStop                =  2;
-  static constexpr int32_t cTimerSprayChangePause               =  3;
+  static constexpr int32_t cSprayChangeMaxMeasuredTimeCount          = 30;
+  static constexpr int32_t cExpectedSprayChangeTimeCount             = 18;
+  static constexpr int32_t cSprayChangeCycle                         =  6;
+  static constexpr int32_t cTimerFinishSearchSprayChangePosition     =  0;
+  static constexpr int32_t cTimerDecelerateSearchSprayChangePosition =  1;
+  static constexpr int32_t cTimerSprayChangeStop                     =  2;
+  static constexpr int32_t cTimerSprayChangePause                    =  3;
   };
 
   OnOffState mDesiredResinWash   = OnOffState::Off;
@@ -30,7 +32,7 @@ private:
   bool             mSprayChangeTransition = false;
 
   int              mMeasuredTimeCount = 0;
-  int64_t          mSprayChangeTimes[cMaxMeasuredTimeCount];
+  int64_t          mSprayChangeTimes[cSprayChangeMaxMeasuredTimeCount];
   int64_t          mMeasureStart;
 
 public:

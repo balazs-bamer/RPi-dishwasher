@@ -64,8 +64,8 @@ void Automat::doResinWashWaterLevel(uint16_t const aLevel) noexcept {
 void Automat::doResinWashSpray(SprayChangeState const aSpray) noexcept {
   if(mSprayPosition == SprayChangeState::Invalid) {
     int64_t now = mTimerManager.now();
-    raise(mMeasuredTimeCount < cMaxMeasuredTimeCount && aSpray != mSprayContact);
-    mSprayChangeTimes[mMeasuredTimeCount++] = mMeasureStart - now;
+    raise(mMeasuredTimeCount < cSprayChangeMaxMeasuredTimeCount &&  aSpray != mSprayContact);
+    mmSprayChangeTimes[mMeasuredTimeCount++] = mMeasureStart - now;
     mMeasureStart = now;
     mSprayContact = aSpray;
   }
@@ -78,89 +78,103 @@ void Automat::doResinWashExpired(int32_t aExpired) noexcept {
     mTimerManager.schedule(Config::cSprayChangeDeceleration, cTimerDecelerateSearchSelectPosition);
   }
   else if(aExpired == cTimerDecelerateSearchSelectPosition) {
-    if(mMeasuredTimeCount < cSprayChangeSearch / 30000 * 6) {
+    if(mMeasuredTimeCount < cExpectedSprayChangeTimeCount) {
       raise(Error::SpraySelect);
     }
+    else { // nothing to do
+    }
     int shortPos = 0;
-    while(shortPos < measuredTimeCount) {
-      if(sprayChangeTimes[shortPos] < SELECT_UP_ON + SELECT_TOLERANCE) {
+    while(shortPos < mMeasuredTimeCount) {
+      if(mSprayChangeTimes[shortPos] < Config::cSprayChangeUpOn + Config::cSprayChangeTolerance) {
         break;
+      }
+      else { // nothing to do
       }
       shortPos++;
     }
     int i;
-    for(i = 0; shortPos < measuredTimeCount; ++i, ++shortPos) {
-      sprayChangeTimes[i] = sprayChangeTimes[shortPos];
+    for(i = 0; shortPos < mMeasuredTimeCount; ++i, ++shortPos) {
+      mSprayChangeTimes[i] = mSprayChangeTimes[shortPos];
     }
-    measuredTimeCount = i;
-    if(measuredTimeCount >= 12) {
-      for(i = 0; i < 6; i++) {
-        sprayChangeTimes[i] = (sprayChangeTimes[i] + sprayChangeTimes[i + 6]) / 2;
+    mMeasuredTimeCount = i;
+    if(mMeasuredTimeCount >= cSprayChangeCycle * 2) {
+      for(i = 0; i < cSprayChangeCycle; i++) {
+        mSprayChangeTimes[i] = (mSprayChangeTimes[i] + mSprayChangeTimes[i + cSprayChangeCycle]) / 2;
       }
     }
-    int rawPositionIndex = (measuredTimeCount - 1) % 6;
-    if(raise(1 - rawPositionIndex % 2 == static_cast<int>(sprayContact))) {
+    else { // nothing to do
+    }
+    int rawPositionIndex = (mMeasuredTimeCount - 1) % cSprayChangeCycle;
+    if(raise(1 - rawPositionIndex % 2 == static_cast<int>(mSprayContact))) {
       return;
     }
-    switch(rawPositionIndex) {
-    case 0:
-    case 1:
+    if(rawPositionIndex == 0 || rawPositionIndex == 1) {
       sprayPosition = SprayChangeState::Upper;
-      break;
-    case 2:
-    case 3:
+    }
+    else if(rawPositionIndex == 2 || rawPositionIndex == 3) {
       sprayPosition = SprayChangeState::Lower;
-      break;
-    case 4:
-    case 5:
+    }
+    else if(rawPositionIndex == 4 || rawPositionIndex == 5) {
       sprayPosition = SprayChangeState::Both;
     }
-    sprayChangeTransition = false;
+    else { // nothing to do
+    }
+    mSprayChangeTransition = false;
   }
   else { // nothing to do
   }
 }
 
-void Automat::doResinWash(const Event &event) noexcept {
-    EventType type = event.getType();
-    if(type == EventType::DResinWash) {
-        doResinWashSwitch(event.getResinWash());
-    }
-    else if(type == EventType::MWaterLevel) {
-        doResinWashWaterLevel(event.getWaterLevel());
-    }
-    else if(type == EventType::MSpray) {
-        doResinWashSpray(event.getSpray());
-    }
-    else if(type == EventType::Timer) {
-        doResinWashExpired(event.getExpired());
-    }
+void Automat::doResinWash(const Event &aEvent) noexcept {
+  EventType type = aEvent.getType();
+  if(type == EventType::DResinWash) {
+    doResinWashSwitch(event.getResinWash());
+  }
+  else if(type == EventType::MWaterLevel) {
+    doResinWashWaterLevel(event.getWaterLevel());
+  }
+  else if(type == EventType::MSpray) {
+    doResinWashSpray(event.getSpray());
+  }
+  else if(type == EventType::Timer) { // TODO move
+    doResinWashExpired(event.getExpired());
+  }
 }
 
-void Automat::doRegularExpired(int32_t expired) noexcept {
-    if(expired == SprayChangeStop) {
-        sprayChangeTransition = false;
-        send(Actuate::Spray0);
-        if(desiredCirculate == CirculateState::On) {
-            send(Actuate::Circ1);
-        }
-        if(desiredSprayChange == SprayChangeState::On) {
-            mTimerManager.schedule(SprayChangePause, SELECT_KEEP_POSITION);
-        }
+void Automat::doRegularExpired(int32_t const aExpired) noexcept {
+  if(aExpired == cTimerSprayChangeStop) {
+    mSprayChangeTransition = false;
+    send(Actuate::Spray0);
+    if(mDesiredCirculate == OnOffState::On) {
+      send(Actuate::Circ1);
     }
-    else if(expired == SprayChangePause) {
-        if(desiredSprayChange == SprayChangeState::On) {
-            if(raise(((sprayPosition == SprayChangeState::Upper ||
-                          sprayPosition == SprayChangeState::Lower ||
-                          sprayPosition == SprayChangeState::Both) &&
-                          sprayContact == SprayChangeState::On)) {
-               return;
-            }
-            send(Actuate::Spray1);
-            send(Actuate::Circ0);  // prevent circulation during transition
-            sprayChangeTransition = true;
-        }
+    else { // nothing to do
     }
+    if(mDesiredSprayChange == OnOffState::On) {
+      mTimerManager.schedule(Config::cSprayChangeKeepPosition, cTimerSprayChangePause);
+    }
+    else { // nothing to do
+    }
+  }
+  else if(aExpired == cTimerSprayChangePause) {
+    if(mDesiredSprayChange == SprayChangeState::On) {
+      if(raise(((mSprayPosition == SprayChangeState::Upper ||
+                 mSprayPosition == SprayChangeState::Lower ||
+                 mSprayPosition == SprayChangeState::Both) &&
+                 mSprayContact == OnOffState::On)) {
+        return;
+      }
+      else { // nothing to do
+      }
+      send(Actuate::Spray1);
+      send(Actuate::Circ0);  // prevent circulation during transition
+      mSprayChangeTransition = true;
+    }
+    else { // nothing to do
+    }
+  }
+  else { // nothing to do
+  }
 }
 
 void Automat::doRegularWaterLevel(const Event &event) noexcept {
