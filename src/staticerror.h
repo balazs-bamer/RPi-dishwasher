@@ -4,21 +4,21 @@
 #include "base.h"
 
 class StaticError final : public Component {
-private:
-    enum Expired : int32_t { Invalid = -1 };
-
 public:
-    StaticError(Dishwasher &d) : Component(d) {}
-    virtual ~StaticError() noexcept {}
+  StaticError(Dishwasher &d) : Component(d) {}
+  virtual ~StaticError() noexcept {}
 
-    virtual void run() noexcept { doRun(GENERAL_POLL_PERIOD); }
+protected:
+  virtual bool shouldHaltOnError() const noexcept {
+    return false;
+  }
 
-    virtual bool shouldBeQueued(const Event &e) const noexcept;
+  virtual bool shouldBeQueued(Event const &aEvent) const noexcept;
 
 private:
-    virtual void process(const Event &event) noexcept;
+  virtual void process(Event const &aEvent) noexcept;
 
-    virtual void process(Error error) noexcept;
+  virtual void process(int32_t const aExpired) noexcept;
 };
 
 #endif // DISHWASHER_STATICERROR_INCLUDED

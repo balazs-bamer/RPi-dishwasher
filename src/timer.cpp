@@ -78,7 +78,7 @@ std::optional<int32_t> TimerManager::pop() {
   return result;
 }
 
-bool TimerManager::push(Timer const &aTimer) noexcept {
+bool TimerManager::schedule(Timer const &aTimer) noexcept {
   bool result;
   if(mLength < tListSize) {
     mTimers[mLength] = aTimer;

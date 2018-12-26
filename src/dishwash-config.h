@@ -4,52 +4,58 @@
 #define DISHWASH_VERSION_MAJOR @DISHWASH_VERSION_MAJOR@
 #define DISHWASH_VERSION_MINOR @DISHWASH_VERSION_MINOR@
 
-// all times are defined and stored in ms
+// all the
+// times are in us
+// heights in mm,
+// currents in mA
 
-// TODO define mm=function(temp, freq)
-#define WATER_LEVEL_FULL          100 // mm TODO
-#define WATER_LEVEL_HALF           50 // mm TODO
-#define WATER_LEVEL_HISTERESIS      2 // mm TODO
-#define WATER_LEVEL_MAX           110 // mm TODO
-#define WATER_LEVEL_RANGE_MIN      -1 // mm TODO
-#define WATER_LEVEL_RANGE_MAX     120 // mm TODO
+class Config final {
+  // TODO define mm=function(temp, freq)
+  static constexpr int32_t cWaterLevelFull         =    100;
+  static constexpr int32_t cWaterLevelHalf         =     50;
+  static constexpr int32_t cWaterLevelHisteresis   =      5;
+  static constexpr int32_t cWaterLevelMax          =    110;
+  static constexpr int32_t cWaterLevelRangeMin     =     -1;
+  static constexpr int32_t cWaterLevelRangeMax     =    120;
 
-// TODO define mA=function(volt)
-#define CIRC_CURRENT_MAX          400 // mA TODO
-#define CIRC_CURRENT_MIN          100 // mA TODO
+  // TODO define mA=function(volt)
+  static constexpr int32_t cCirculateCurrentMin    =    100;
+  static constexpr int32_t cCirculateCurrentMax    =    400;
 
-// TODO define mA=function(volt)
-#define DRAIN_CURRENT_MAX         150 // mA TODO
-#define DRAIN_CURRENT_MIN          40 // mA TODO
+  // TODO define mA=function(volt)
+  static constexpr int32_t cDrainCurrentMin        =     40;
+  static constexpr int32_t cDrainCurrentMax        =    150;
 
-#define CURRENT_SETTLE_TIME      1000 // ms
+  static constexpr int32_t cCurrentSettleTime      =   1000 * 1000;
 
-// TODO define deg=function(volt)
-#define SECONDS_PER_DEG_RISE   180000 // ms TODO
-#define TEMP_MAX                   75
-#define TEMP_HISTERESIS             2 // TODO
-#define TEMP_RANGE_MIN              5
-#define TEMP_RANGE_MAX            100
+  // TODO define deg=function(volt)
+  static constexpr int32_t cTimePerDegRise         = 180000 * 1000; // TODO what was this for?
 
-#define SELECT_UP_ON             1000 // ms TODO...
-#define SELECT_UP_OFF            6500
-#define SELECT_DOWN_ON           5500
-#define SELECT_DOWN_OFF          3000
-#define SELECT_BOTH_ON           3000
-#define SELECT_BOTH_OFF          5000
-#define SELECT_TOLERANCE          400
-#define SELECT_SEARCH           90000
-#define SELECT_DECELERATION      1000
-#define SELECT_KEEP_POSITION    20000
+  static constexpr int32_t cTempMax                =     75;
+  static constexpr int32_t cTempHisteresis         =      2;
+  static constexpr int32_t cTempRangeMin           =      5;
+  static constexpr int32_t cTempRangeMax           =    100;
 
-#define SLEEP_BEFORE_NEXT_STEP   5000 // ms, allows time for initial measurements
-#define AVERAGE_FILL_DRAIN_MIN      2 // min - needed to add to program step durations to approxiomate program time
-#define REGENERATE_VALVE_TIME  180000 // ms TODO
-#define RESIN_WASH_TIME        120000 // ms must be longer than SELECT_SEARCH
-#define WASH_DETERGENT_OPEN_TIME  200 // ms
-#define SHUTDOWN_RELAY_ON_TIME     50 // ms
+  static constexpr int32_t cSprayChangeUpOn        =   1000 * 1000;
+  static constexpr int32_t cSprayChangeUpOff       =   6500 * 1000;
+  static constexpr int32_t cSprayChangeDownOn      =   5500 * 1000;
+  static constexpr int32_t cSprayChangeDownOff     =   3000 * 1000;
+  static constexpr int32_t cSprayChangeBothOn      =   3000 * 1000;
+  static constexpr int32_t cSprayChangeBothOff     =   5000 * 1000;
+  static constexpr int32_t cSprayChangeTolerance   =    400 * 1000;
+  static constexpr int32_t cSprayChangeSearch      =  90000 * 1000;
+  static constexpr int32_t cSprayChangeDeceleration =  1000 * 1000;
+  static constexpr int32_t cSprayChangeKeepPosition = 20000 * 1000;
 
-#define CIRC_OFF_TIME            1000 // ms
-#define CIRC_ON_TIME             2000 // ms
+  static constexpr int32_t cCirculateOffTime       =   1000 * 1000;
+  static constexpr int32_t cCirculateOnTime        =   2000 * 1000;
+
+  static constexpr int32_t cSleepBeforeNextStep    =   5000 * 1000;
+  static constexpr int32_t cAverageFillDrainMin    =      2;
+  static constexpr int32_t cRegenerateValveTime    = 180000 * 1000;
+  static constexpr int32_t cResinWashTime          = 120000 * 1000; // ms must be longer than cSprayChangeSearch
+  static constexpr int32_t cWashDetergentOpenTime  =    200 * 1000;
+  static constexpr int32_t cShutdownRelayOnTime    =     50 * 1000;
+};
 
 #endif // DISHWASHER_DISHWASH_CONFIG_INCLUDED

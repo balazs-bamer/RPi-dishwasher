@@ -92,3 +92,42 @@
 	<optional>
 	<iostream>
 
+1545586704 source:/home/balazs/munka/mosogatogep/prg/src/log/log.cpp
+	"log.h"
+	"logutil.h"
+
+1545586704 /home/balazs/munka/mosogatogep/prg/src/log/log.h
+	"BanCopyMove.h"
+	<cstdint>
+	<type_traits>
+	<atomic>
+	<limits>
+	<cmath>
+	<map>
+	<iostream>
+
+1545586704 /home/balazs/munka/mosogatogep/prg/src/log/BanCopyMove.h
+
+1545586704 /home/balazs/munka/mosogatogep/prg/src/log/logutil.h
+	"log.h"
+	<atomic>
+
+1545586704 source:/home/balazs/munka/mosogatogep/prg/src/log/logstdthreadostream.cpp
+	"logstdthreadostream.h"
+
+1545586704 /home/balazs/munka/mosogatogep/prg/src/log/logstdthreadostream.h
+	"log.h"
+	<mutex>
+	<atomic>
+	<thread>
+	<chrono>
+	<string>
+	<string>
+	<ostream>
+	<functional>
+	<condition_variable>
+	<boost/lockfree/queue.hpp>
+
+1545586704 source:/home/balazs/munka/mosogatogep/prg/src/log/logutil.cpp
+	"logutil.h"
+

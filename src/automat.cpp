@@ -1,113 +1,124 @@
+#include "dishwash-config.h"
 #include "automat.h"
 #include "dishwash.h"
 
 using namespace std;
 
-bool Automat::shouldBeQueued(const Event &e) const noexcept {
-    switch(e.getType()) {
-    case EventType::MSpray:
-    case EventType::MWaterLevel:
-    case EventType::MTemperature:
-    case EventType::MCircCurrent:
-    case EventType::MDrainCurrent:
-    case EventType::DSpray:
-    case EventType::DCirc:
-    case EventType::DWaterLevel:
-    case EventType::DTemperature:
-    case EventType::DResinWash:
-        return true;
-    default:
-        return false;
-    }
+bool Automat::shouldBeQueued(Event const &aEvent) const noexcept {
+  switch(aEvent.getType()) {
+  case EventType::MSpray:
+  case EventType::MWaterLevel:
+  case EventType::MTemperature:
+  case EventType::MCircCurrent:
+  case EventType::MDrainCurrent:
+  case EventType::DSpray:
+  case EventType::DCirc:
+  case EventType::DWaterLevel:
+  case EventType::DTemperature:
+  case EventType::DResinWash:
+    return true;
+  default:
+    return false;
+  }
 }
 
-void Automat::doResinWashSwitch(ResinWashState desired) noexcept {
-    desiredResinWash = desired;
-    if(desired == ResinWashState::On) {
-        sprayChangeTransition = true;
-        // great time to calibrate the spray changer mechanism
-        timedEvents.schedule(FinishSearchSelectPosition, SELECT_SEARCH);
-        send(Actuate::Spray1);
-        measureStart = chrono::system_clock::now();
-        if(waterLevel < WATER_LEVEL_FULL) {
-            send(Actuate::Fill1);
-        }
-        send(Actuate::Drain1);
+void Automat::doResinWashSwitch(ResinWashState const aDesired) noexcept {
+  mDesiredResinWash = aDesired;
+  if(mDesiredResinWash == ResinWashState::On) {
+    mSprayChangeTransition = true;
+    // great time to calibrate the spray changer mechanism
+    mTimerManager.schedule(Config::cSprayChangeSearch, cTimerFinishSearchSelectPosition);
+    send(Actuate::Spray1);
+    mMeasureStart = mTimerManager.now();
+    if(waterLevel < Config::cWaterLevelFull) {
+      send(Actuate::Fill1);
     }
-    else {
-        desiredWaterLevel = 0;
-        desiredTemperature = 0;
-        desiredCirculate = CirculateState::Off;
-        desiredSprayChange = SprayChangeState::Off;
-        send(Actuate::Fill0);
-        send(Actuate::Drain0);
+    else { // nothing to do
     }
+    send(Actuate::Drain1);
+  }
+  else {
+    mDesiredWaterLevel = 0;
+    mDesiredTemperature = 0;
+    mDesiredCirculate = OnOffState::Off;
+    mDesiredSprayChange = OnOffState::Off;
+    send(Actuate::Fill0);
+    send(Actuate::Drain0);
+  }
 }
 
-void Automat::doResinWashWaterLevel(uint16_t level) noexcept {
-    waterLevel = level;
-    if(waterLevel < WATER_LEVEL_HALF) {
-        send(Actuate::Fill1);
-    }
-    if(waterLevel >= WATER_LEVEL_FULL) {
-        send(Actuate::Fill0);
-    }
+void Automat::doResinWashWaterLevel(uint16_t const aLevel) noexcept {
+  mWaterLevel = aLevel;
+  if(mWaterLevel < Config::cWaterLevelHalf) {
+    send(Actuate::Fill1);
+  }
+  else { // nothing to do
+  }
+  if(mWaterLevel >= Config::cWaterLevelFull) {
+    send(Actuate::Fill0);
+  }
+  else { // nothing to do
+  }
 }
 
-void Automat::doResinWashSpray(SprayChangeState spray) noexcept {
-    if(sprayPosition == SprayChangeState::Invalid) {
-        chrono::system_clock::time_point now = chrono::system_clock::now();
-        raise(measuredTimeCount < maxMeasuredTimeCount && spray != sprayContact);
-        sprayChangeTimes[measuredTimeCount++] = (chrono::duration_cast<chrono::milliseconds>(measureStart - now)).count();
-        measureStart = now;
-        sprayContact = spray;
-    }
+void Automat::doResinWashSpray(SprayChangeState const aSpray) noexcept {
+  if(mSprayPosition == SprayChangeState::Invalid) {
+    int64_t now = mTimerManager.now();
+    raise(mMeasuredTimeCount < cMaxMeasuredTimeCount && aSpray != mSprayContact);
+    mSprayChangeTimes[mMeasuredTimeCount++] = mMeasureStart - now;
+    mMeasureStart = now;
+    mSprayContact = aSpray;
+  }
+  else { // nothing to do
+  }
 }
 
-void Automat::doResinWashExpired(int32_t expired) noexcept {
-    if(expired == FinishSearchSelectPosition) {
-        timedEvents.schedule(DecelerateSearchSelectPosition, SELECT_DECELERATION);
+void Automat::doResinWashExpired(int32_t aExpired) noexcept {
+  if(aExpired == cTimerFinishSearchSelectPosition) {
+    mTimerManager.schedule(Config::cSprayChangeDeceleration, cTimerDecelerateSearchSelectPosition);
+  }
+  else if(aExpired == cTimerDecelerateSearchSelectPosition) {
+    if(mMeasuredTimeCount < cSprayChangeSearch / 30000 * 6) {
+      raise(Error::SpraySelect);
     }
-    else if(expired == DecelerateSearchSelectPosition) {
-        if(measuredTimeCount < SELECT_SEARCH / 30000 * 6) {
-            raise(Error::SpraySelect);
-        }
-        int shortPos = 0;
-        while(shortPos < measuredTimeCount) {
-            if(sprayChangeTimes[shortPos] < SELECT_UP_ON + SELECT_TOLERANCE) {
-                break;
-            }
-            shortPos++;
-        }
-        int i;
-        for(i = 0; shortPos < measuredTimeCount; ++i, ++shortPos) {
-            sprayChangeTimes[i] = sprayChangeTimes[shortPos];
-        }
-        measuredTimeCount = i;
-        if(measuredTimeCount >= 12) {
-            for(i = 0; i < 6; i++) {
-                sprayChangeTimes[i] = (sprayChangeTimes[i] + sprayChangeTimes[i + 6]) / 2;
-            }
-        }
-        int rawPositionIndex = (measuredTimeCount - 1) % 6;
-        if(raise(1 - rawPositionIndex % 2 == static_cast<int>(sprayContact))) {
-          return;
-        }
-        switch(rawPositionIndex) {
-        case 0:
-        case 1:
-            sprayPosition = SprayChangeState::Upper;
-            break;
-        case 2:
-        case 3:
-            sprayPosition = SprayChangeState::Lower;
-            break;
-        case 4:
-        case 5:
-            sprayPosition = SprayChangeState::Both;
-        }
-        sprayChangeTransition = false;
+    int shortPos = 0;
+    while(shortPos < measuredTimeCount) {
+      if(sprayChangeTimes[shortPos] < SELECT_UP_ON + SELECT_TOLERANCE) {
+        break;
+      }
+      shortPos++;
     }
+    int i;
+    for(i = 0; shortPos < measuredTimeCount; ++i, ++shortPos) {
+      sprayChangeTimes[i] = sprayChangeTimes[shortPos];
+    }
+    measuredTimeCount = i;
+    if(measuredTimeCount >= 12) {
+      for(i = 0; i < 6; i++) {
+        sprayChangeTimes[i] = (sprayChangeTimes[i] + sprayChangeTimes[i + 6]) / 2;
+      }
+    }
+    int rawPositionIndex = (measuredTimeCount - 1) % 6;
+    if(raise(1 - rawPositionIndex % 2 == static_cast<int>(sprayContact))) {
+      return;
+    }
+    switch(rawPositionIndex) {
+    case 0:
+    case 1:
+      sprayPosition = SprayChangeState::Upper;
+      break;
+    case 2:
+    case 3:
+      sprayPosition = SprayChangeState::Lower;
+      break;
+    case 4:
+    case 5:
+      sprayPosition = SprayChangeState::Both;
+    }
+    sprayChangeTransition = false;
+  }
+  else { // nothing to do
+  }
 }
 
 void Automat::doResinWash(const Event &event) noexcept {
@@ -134,7 +145,7 @@ void Automat::doRegularExpired(int32_t expired) noexcept {
             send(Actuate::Circ1);
         }
         if(desiredSprayChange == SprayChangeState::On) {
-            timedEvents.schedule(SprayChangePause, SELECT_KEEP_POSITION);
+            mTimerManager.schedule(SprayChangePause, SELECT_KEEP_POSITION);
         }
     }
     else if(expired == SprayChangePause) {
@@ -257,15 +268,15 @@ void Automat::doRegularSpray(const Event &event) noexcept {
         sprayContact = event.getSpray();
         if(sprayContact == SprayChangeState::On) {
             if(sprayPosition == SprayChangeState::Upper) {
-                timedEvents.schedule(SprayChangeStop, SELECT_DOWN_ON / 2);
+                mTimerManager.schedule(SprayChangeStop, SELECT_DOWN_ON / 2);
                 sprayPosition = SprayChangeState::Lower;
             }
             else if(sprayPosition == SprayChangeState::Lower) {
-                timedEvents.schedule(SprayChangeStop, SELECT_BOTH_ON / 2);
+                mTimerManager.schedule(SprayChangeStop, SELECT_BOTH_ON / 2);
                 sprayPosition = SprayChangeState::Both;
             }
             else if(sprayPosition == SprayChangeState::Both) {
-                timedEvents.schedule(SprayChangeStop, SELECT_UP_ON / 2);
+                mTimerManager.schedule(SprayChangeStop, SELECT_UP_ON / 2);
                 sprayPosition = SprayChangeState::Upper;
             }
         }

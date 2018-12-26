@@ -208,6 +208,7 @@ class Component : public BanCopyMove {
   static constexpr int32_t cWatchdogPatInterval = 100000;  // 0.1s
   static constexpr int32_t cMessageQueueSize    =    128u;
   static constexpr int32_t cNoError             =      0;
+  static constexpr int32_t cTimerCount          =     20;
 
   std::thread mThread;
 
@@ -228,12 +229,9 @@ protected:
 private:
   /** This and derived constructors may throw exception if some library or hardware component fails.
   This and derived constructors will initialize all the needed libraries and hardware. */
-  Component(Dishwasher &aDishwasher) : mQueue(cMessageQueueSize), mTimerManager(getTimerCount()), mDishwasher(aDishwasher) {
+  Component(Dishwasher &aDishwasher) : mQueue(cMessageQueueSize), mTimerManager(cTimerCount), mDishwasher(aDishwasher) {
     mKeepRunning = mQueue.is_lock_free() && mTimerManager;
   }
-
-protected:
-  virtual int32_t getTimerCount() = 0;
 
 public:
   virtual ~Component() noexcept {}
@@ -259,7 +257,7 @@ protected:
   virtual bool shouldHaltOnError() const noexcept = 0;
 
   /// Does not have to check for errors or timed events, since they are handle independently.
-  virtual bool shouldBeQueued(const Event &) const noexcept = 0;
+  virtual bool shouldBeQueued(Event const &) const noexcept = 0;
 
   void schedule(int64_t const aDelay, int32_t const aTimerAction) noexcept {
     mKeepRunning = mKeepRunning && mTimerManager.push(aDelay, aTimerAction);
@@ -267,7 +265,7 @@ protected:
 
   void send(Event const &) noexcept;
 
-  void send(EventType aType, int32_t aValue) noexcept {
+  void send(EventType const aType, int32_t const aValue) noexcept {
     send(Event(aType, aValue));
   }
 
@@ -278,7 +276,7 @@ protected:
   virtual void process(Event const &) noexcept = 0;
 
   /// Processes a timer event. Implementation will cast it to the actual enum class.
-  virtual void process(int32_t const &) noexcept = 0;
+  virtual void process(int32_t const) noexcept = 0;
 
   /// Handles it here and sends to other components.
   void raise(Error const aError) noexcept;

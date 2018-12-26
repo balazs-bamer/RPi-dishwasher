@@ -31,11 +31,11 @@ void Logic::turnOffAll() noexcept {
 bool Logic::handleDoor(const Event &event) noexcept {
     if(event.getType() == EventType::MDoor) {
         if(event.getDoor() == DoorState::Open) {
-            timedEvents.pause();
+            mTimerManager.pause();
             doorOpen = true;
         }
         else if(event.getDoor() == DoorState::Closed) {
-            timedEvents.resume();
+            mTimerManager.resume();
             doorOpen = false;
         }
         return true;
@@ -55,7 +55,7 @@ void Logic::nextState() noexcept {
     targetTime = waitMinutes[static_cast<int>(program)][static_cast<int>(state)] * MS_IN_MIN;
     send(state);
     turnOffAll();
-    timedEvents.schedule(StartStep, SLEEP_BEFORE_NEXT_STEP);
+    mTimerManager.schedule(StartStep, SLEEP_BEFORE_NEXT_STEP);
 }
 
 void Logic::process(Program prg) noexcept {
@@ -82,7 +82,7 @@ void Logic::process(Program prg) noexcept {
             program = Program::None;
             state = State::Idle;
             turnOffAll();
-            timedEvents.cancelAll();
+            mTimerManager.cancelAll();
         }
     }
 }
@@ -122,7 +122,7 @@ void Logic::doDrain(const Event &event) noexcept {
 void Logic::doResinWashExpired(int32_t exp) noexcept {
     if(exp == StartStep) {
         send(ResinWashState::On);
-        timedEvents.schedule(ResinWashReady, RESIN_WASH_TIME);
+        mTimerManager.schedule(ResinWashReady, RESIN_WASH_TIME);
         resinStopProgramWhenReady = false;
         resinWashReady = false;
     }
@@ -190,9 +190,9 @@ void Logic::doWashMeasured(const Event &event) noexcept {
             send(Event(EventType::DSpray, SprayChangeState::On));
             if(needDetergent) {
                 send(Actuate::Detergent1);
-                timedEvents.schedule(WashDetergent, WASH_DETERGENT_OPEN_TIME);
+                mTimerManager.schedule(WashDetergent, WASH_DETERGENT_OPEN_TIME);
             }
-            timedEvents.schedule(WashWash, targetTime);
+            mTimerManager.schedule(WashWash, targetTime);
         }
         if(washWaterDrain == true && event.getWaterLevel() <= WATER_LEVEL_HISTERESIS) {
             nextState();
@@ -215,8 +215,8 @@ void Logic::doWash(const Event &event) noexcept {
 
 void Logic::doDryExpired(int32_t exp) noexcept {
     if(exp == StartStep) {
-        timedEvents.schedule(DryReady, targetTime);
-        timedEvents.schedule(DryRegenerate, REGENERATE_VALVE_TIME);
+        mTimerManager.schedule(DryReady, targetTime);
+        mTimerManager.schedule(DryRegenerate, REGENERATE_VALVE_TIME);
         send(Actuate::Regenerate1);
     }
     else if(exp == DryRegenerate) {
@@ -243,7 +243,7 @@ void Logic::doShutdown(const Event &event) noexcept {
     int32_t exp = event.getExpired();
     if(exp == StartStep) {
         send(Actuate::Shutdown1);
-        timedEvents.schedule(ShutdownReady, SHUTDOWN_RELAY_ON_TIME);
+        mTimerManager.schedule(ShutdownReady, SHUTDOWN_RELAY_ON_TIME);
     }
     else if(exp == ShutdownReady) {
         send(Actuate::Shutdown0);

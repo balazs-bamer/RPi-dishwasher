@@ -72,6 +72,10 @@ private:
 public:
   TimerManager(int32_t const aMaxLength) noexcept;
 
+  ~TimerManager() noexcept {
+    delete[] mTimers;
+  }
+
   operator bool() const noexcept {
     return mTimers != nullptr;
   }
@@ -84,15 +88,15 @@ public:
 
   /// Creates an immutable (watchdog) timer from now on
   /// @param aLength planned delay in us
-  bool push(int64_t const aLength) noexcept {
-    return push(Timer(now(), aLength));
+  bool schedule(int64_t const aLength) noexcept {
+    return schedule(Timer(now(), aLength));
   }
 
   /// Creates an action timer from now on
   /// @param aLength planned delay in us
   /// @param aAction action as int to delay
-  bool push(int64_t const aLength, int32_t const aAction) noexcept {
-    return aAction <= cPatWatchdog ? false : push(Timer(now(), aLength, aAction));
+  bool schedule(int64_t const aLength, int32_t const aAction) noexcept {
+    return aAction <= cPatWatchdog ? false : schedule(Timer(now(), aLength, aAction));
   }
 
   /// May only be called if the actual timer expired, so there is something to return.
@@ -101,7 +105,7 @@ public:
   std::optional<int32_t> pop() noexcept;
 
 private:
-  bool push(Timer const &aTimer) noexcept;
+  bool schedule(Timer const &aTimer) noexcept;
 
   template <typename Chrono>
   std::optional<int32_t> measureShortestThreadSleep() noexcept {
