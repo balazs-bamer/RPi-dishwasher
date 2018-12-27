@@ -137,8 +137,7 @@ private:
    * Timer is also paused. Output turns off all physical outputs as well, so nothing will be missed. */
   virtual void process(Event const &aEvent) noexcept;
 
-  virtual void process(int32_t const aExpired) noexcept {
-  }
+  virtual void process(int32_t const aExpired) noexcept;
 };
 
 #endif // DISHWASHER_LOGIC_INCLUDED

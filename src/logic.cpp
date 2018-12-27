@@ -8,8 +8,8 @@ constexpr uint16_t Logic::waitMinutes[static_cast<int32_t>(Program::Count)][stat
 
 bool Logic::shouldBeQueued(const Event &e) const noexcept {
     switch(e.getType()) {
-    case EventType::MWaterLevel:
-    case EventType::MDoor:
+    case EventType::MeasuredWaterLevel:
+    case EventType::MeasuredDoor:
     case EventType::Program:
         return true;
     default:
@@ -20,16 +20,16 @@ bool Logic::shouldBeQueued(const Event &e) const noexcept {
 void Logic::turnOffAll() noexcept {
     send(ResinWashState::Off);
     send(CirculateState::Off);
-    send(EventType::DWaterLevel, 0);
-    send(EventType::DTemperature, 0);
-    send(Event(EventType::DSpray, SprayChangeState::Off));
+    send(EventType::DesiredWaterLevel, 0);
+    send(EventType::DesiredTemperature, 0);
+    send(Event(EventType::DesiredSpray, SprayChangeState::Off));
     send(Actuate::Detergent0);
     send(Actuate::Regenerate0);
     send(Actuate::Shutdown0);
 }
 
 bool Logic::handleDoor(const Event &event) noexcept {
-    if(event.getType() == EventType::MDoor) {
+    if(event.getType() == EventType::MeasuredDoor) {
         if(event.getDoor() == DoorState::Open) {
             mTimerManager.pause();
             doorOpen = true;
@@ -95,12 +95,12 @@ void Logic::doIdle(const Event &event) noexcept {
 
 void Logic::doDrainExpired(int32_t exp) noexcept {
     if(exp == StartStep) {
-        send(EventType::DWaterLevel, 0);
+        send(EventType::DesiredWaterLevel, 0);
     }
 }
 
 void Logic::doDrainMeasured(const Event &event) noexcept {
-    if(event.getType() == EventType::MWaterLevel) {
+    if(event.getType() == EventType::MeasuredWaterLevel) {
         if(event.getWaterLevel() <= WATER_LEVEL_HISTERESIS) {
             nextState();
         }
@@ -137,7 +137,7 @@ void Logic::doResinWashExpired(int32_t exp) noexcept {
 }
 
 void Logic::doResinWashMeasured(const Event &event) noexcept {
-    if(resinWashReady && event.getType() == EventType::MWaterLevel) {
+    if(resinWashReady && event.getType() == EventType::MeasuredWaterLevel) {
         if(event.getWaterLevel() == 0) {
             nextState();
         }
@@ -165,7 +165,7 @@ void Logic::doResinWash(const Event &event) noexcept {
 
 void Logic::doWashExpired(int32_t exp) noexcept {
     if(exp == StartStep) {
-        send(EventType::DWaterLevel, WATER_LEVEL_FULL);
+        send(EventType::DesiredWaterLevel, WATER_LEVEL_FULL);
         washWaterFill = true;
         washWaterDrain = false;
     }
@@ -174,20 +174,20 @@ void Logic::doWashExpired(int32_t exp) noexcept {
     }
     else if(exp == WashWash) {
         send(CirculateState::Off);
-        send(Event(EventType::DSpray, SprayChangeState::Off));
-        send(EventType::DTemperature, 0);
-        send(EventType::DWaterLevel, 0);
+        send(Event(EventType::DesiredSpray, SprayChangeState::Off));
+        send(EventType::DesiredTemperature, 0);
+        send(EventType::DesiredWaterLevel, 0);
         washWaterDrain = true;
     }
 }
 
 void Logic::doWashMeasured(const Event &event) noexcept {
-    if(event.getType() == EventType::MWaterLevel) {
+    if(event.getType() == EventType::MeasuredWaterLevel) {
         if(washWaterFill == true && event.getWaterLevel() >= WATER_LEVEL_FULL) {
             washWaterFill = false;
-            send(EventType::DTemperature, targetTemperature);
+            send(EventType::DesiredTemperature, targetTemperature);
             send(CirculateState::On);
-            send(Event(EventType::DSpray, SprayChangeState::On));
+            send(Event(EventType::DesiredSpray, SprayChangeState::On));
             if(needDetergent) {
                 send(Actuate::Detergent1);
                 mTimerManager.schedule(WashDetergent, WASH_DETERGENT_OPEN_TIME);
@@ -251,7 +251,7 @@ void Logic::doShutdown(const Event &event) noexcept {
 }
 
 void Logic::process(const Event &event) noexcept {
-    if(error.load() != 0) {
+    if(error.load() != static_case<int32_t>(Error::None)) {
         return; // abandon program to let the display sign the state when the error occured
     }
     if(handleDoor(event) || doorOpen) {
@@ -291,6 +291,6 @@ void Logic::process(const Event &event) noexcept {
         doShutdown(event);
         break;
     default:
-        raise(false);
+        assert(false);
     }
 }

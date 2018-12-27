@@ -6,16 +6,16 @@ using namespace std;
 
 bool Automat::shouldBeQueued(Event const &aEvent) const noexcept {
   switch(aEvent.getType()) {
-  case EventType::MSpray:
-  case EventType::MWaterLevel:
-  case EventType::MTemperature:
-  case EventType::MCircCurrent:
-  case EventType::MDrainCurrent:
-  case EventType::DSpray:
-  case EventType::DCirc:
-  case EventType::DWaterLevel:
-  case EventType::DTemperature:
-  case EventType::DResinWash:
+  case EventType::MeasuredSpray:
+  case EventType::MeasuredWaterLevel:
+  case EventType::MeasuredTemperature:
+  case EventType::MeasuredCircCurrent:
+  case EventType::MeasuredDrainCurrent:
+  case EventType::DesiredSpray:
+  case EventType::DesiredCirc:
+  case EventType::DesiredWaterLevel:
+  case EventType::DesiredTemperature:
+  case EventType::DesiredResinWash:
     return true;
   default:
     return false;
@@ -64,7 +64,7 @@ void Automat::doResinWashWaterLevel(uint16_t const aLevel) noexcept {
 void Automat::doResinWashSpray(SprayChangeState const aSpray) noexcept {
   if(mSprayPosition == SprayChangeState::Invalid) {
     int64_t now = mTimerManager.now();
-    raise(mMeasuredTimeCount < cSprayChangeMaxMeasuredTimeCount &&  aSpray != mSprayContact);
+    assert(mMeasuredTimeCount < cSprayChangeMaxMeasuredTimeCount && aSpray != mSprayContact);
     mmSprayChangeTimes[mMeasuredTimeCount++] = mMeasureStart - now;
     mMeasureStart = now;
     mSprayContact = aSpray;
@@ -73,8 +73,221 @@ void Automat::doResinWashSpray(SprayChangeState const aSpray) noexcept {
   }
 }
 
-void Automat::doResinWashExpired(int32_t aExpired) noexcept {
-  if(aExpired == cTimerFinishSearchSelectPosition) {
+void Automat::doResinWash(const Event &aEvent) noexcept {
+  EventType type = aEvent.getType();
+  if(type == EventType::DesiredResinWash) {
+    doResinWashSwitch(event.getResinWash());
+  }
+  else if(type == EventType::MeasuredWaterLevel) {
+    doResinWashWaterLevel(event.getWaterLevel());
+  }
+  else if(type == EventType::MeasuredSpray) {
+    doResinWashSpray(event.getSpray());
+  }
+  else { // nothing to do
+  }
+}
+
+void Automat::doWaterLevel(Event const &aEvent) noexcept {
+  // TODO DrainCurrent
+  EventType type = aEvent.getType();
+  if(type == EventType::DesiredWaterLevel) {
+    assert(mDesiredCirculate == OnOffState::On);
+    mDesiredWaterLevel = aEvent.getWaterLevel();
+    if(mWaterLevel < mDesiredWaterLevel - Config::cWaterLevelHisteresis) {
+      send(Actuate::Drain0);
+      send(Actuate::Fill1);
+      // TODO timeout
+    }
+    else { // nothing to do
+    }
+    if(mWaterLevel > mDesiredWaterLevel + Config::cWaterLevelHisteresis) {
+      send(Actuate::Drain1);
+      send(Actuate::Fill0);
+      // TODO timeout
+    }
+    else { // nothing to do
+    }
+  }
+  else if(type == EventType::MeasuredWaterLevel) {
+    mWaterLevel = event.getWaterLevel();
+    if(mDesiredCirculate == CirculateState::On) {
+      return;
+    }
+    else { // nothing to do
+    }
+    if(mWaterLevel < mDesiredWaterLevel - Config::cWaterLevelHisteresis) {
+      send(Actuate::Drain0);
+      send(Actuate::Fill1);
+    }
+    else if(mWaterLevel > mWesiredWaterLevel + Config::cWaterLevelHisteresis) {
+      send(Actuate::Drain1);
+      send(Actuate::Fill0);
+    }
+    else {
+      // TODO cancel
+    }
+  }
+  else { // nothing to do
+  }
+}
+
+void Automat::doTemperature(Event const &aEvent) noexcept {
+  EventType type = aEvent.getType();
+  if(type == EventType::DesiredTemperature) {
+    mDesiredTemperature = event.getTemperature();
+    if(mTemperature < mDesiredTemperature - Config::cTempHisteresis) {
+      send(Actuate::Heat1);
+        // TODO timeout
+    }
+    else { // nothing to do
+    }
+    if(mTemperature > mDesiredTemperature + Config::cTempHisteresis) {
+      send(Actuate::Heat0);
+        // TODO timeout
+    }
+    else { // nothing to do
+    }
+  }
+  else if(type == EventType::MeasuredTemperature) {
+    mTemperature = event.getTemperature();
+    if(mTemperature < mDesiredTemperature - Config::cTempHisteresis) {
+      send(Actuate::Heat1);
+    }
+    else if(mTemperature > mDesiredTemperature + Config::cTempHisteresis) {
+      send(Actuate::Heat0);
+    }
+    else {
+        // TODO cancel
+    }
+  }
+  else { // nothing to do
+  }
+}
+
+// TODO later PWM
+void Automat::doCirculate(Event const &aEvent) noexcept {
+  EventType type = event.getType();
+  if(type == EventType::DesiredCirc) {
+    mDesiredCirculate = event.getCirc();
+    if(mDesiredCirculate == CirculateState::On) {
+      if(mSprayChangeTransition == false) {
+        send(Actuate::Circ1);
+      }
+      else { // nothing to do
+      }
+    }
+    else {
+      send(Actuate::Circ0);
+    }
+  }
+  else { // nothing to do
+  }
+}
+
+void Automat::doSpray(Event const &event) noexcept {
+  EventType type = event.getType();
+  if(type == EventType::DesiredSpray) {
+    SprayChangeState desired = event.getSpray();
+    if(desired != SprayChangeState::On && desired != SprayChangeState::Off) {
+      return;
+    }
+    else { // nothing to do
+    }
+    mDesiredSprayChange = desired;
+    if(mDesiredSprayChange == SprayChangeState::On) {
+      assert((mSprayPosition == SprayChangeState::Upper ||
+              mSprayPosition == SprayChangeState::Lower ||
+              mSprayPosition == SprayChangeState::Both) &&
+              mSprayContact == SprayChangeState::On));
+      send(Actuate::Spray1);
+      send(Actuate::Circ0);  // prevent circulation during transition
+      mSprayChangeTransition = true;
+    }
+    else { // nothing to do
+    }
+  }
+  else if(type == EventType::MeasuredSpray) {
+    mSprayContact = event.getSpray();
+    if(mSprayContact == SprayChangeState::On) {
+      if(mSprayPosition == SprayChangeState::Upper) {
+        mTimerManager.schedule(Config::cSprayChangeDownOn, cTimerSprayChangeStop);
+        mSprayPosition = SprayChangeState::Lower;
+      }
+      else if(mSprayPosition == SprayChangeState::Lower) {
+        mTimerManager.schedule(Config::cSprayChangeBothOn, cTimerSprayChangeStop);
+        mSprayPosition = SprayChangeState::Both;
+      }
+      else if(mSprayPosition == SprayChangeState::Both) {
+        mTimerManager.schedule(Config::cSprayChangeUpOn, cTimerSprayChangeStop);
+        mSprayPosition = SprayChangeState::Upper;
+      }
+      else { // nothing to do
+      }
+    }
+    else { // nothing to do
+    }
+  }
+  else { // nothing to do
+  }
+}
+
+void Automat::process(Event const &aEvent) noexcept {
+  if(error.load() == static_case<int32_t>(Error::None)) {
+    return;
+  }
+  EventType type = event.getType();
+  if(type == EventType::DesiredResinWash || desiredResinWash == ResinWashState::On) {
+    doResinWash(event);
+  }
+  else if(type == EventType::Timer) {
+    doExpired(event.getExpired());
+  }
+  else if(type == EventType::DesiredWaterLevel || type == EventType::MeasuredWaterLevel || type == EventType::MeasuredDrainCurrent) {
+    doWaterLevel(event);
+  }
+  else if(type == EventType::DesiredTemperature || type == EventType::MeasuredTemperature) {
+    doTemperature(event);
+  }
+  else if(type == EventType::DesiredCirc || type == EventType::MeasuredCircCurrent) {
+    doCirculate(event);
+  }
+  else if(type == EventType::DesiredSpray || type == EventType::MeasuredSpray) {
+    doSpray(event);
+  }
+  else { // nothing to do
+  }
+}
+
+void Automat::process(int32_t const aTimerEvent) noexcept {
+  if(aTimerEvent == cTimerSprayChangeStop) {
+    mSprayChangeTransition = false;
+    send(Actuate::Spray0);
+    if(mDesiredCirculate == OnOffState::On) {
+      send(Actuate::Circ1);
+    }
+    else { // nothing to do
+    }
+    if(mDesiredSprayChange == OnOffState::On) {
+      mTimerManager.schedule(Config::cSprayChangeKeepPosition, cTimerSprayChangePause);
+    }
+    else { // nothing to do
+    }
+  }
+  else if(aTimerEvent == cTimerSprayChangePause) {
+    if(mDesiredSprayChange == SprayChangeState::On) {
+      assert(((mSprayPosition == SprayChangeState::Upper ||
+               mSprayPosition == SprayChangeState::Lower ||
+               mSprayPosition == SprayChangeState::Both) &&
+               mSprayContact == OnOffState::On));
+      send(Actuate::Spray1);
+      send(Actuate::Circ0);  // prevent circulation during transition
+      mSprayChangeTransition = true;
+    }
+    else { // nothing to do
+    }
+  }
+  else if(aExpired == cTimerFinishSearchSelectPosition) {
     mTimerManager.schedule(Config::cSprayChangeDeceleration, cTimerDecelerateSearchSelectPosition);
   }
   else if(aExpired == cTimerDecelerateSearchSelectPosition) {
@@ -105,9 +318,7 @@ void Automat::doResinWashExpired(int32_t aExpired) noexcept {
     else { // nothing to do
     }
     int rawPositionIndex = (mMeasuredTimeCount - 1) % cSprayChangeCycle;
-    if(raise(1 - rawPositionIndex % 2 == static_cast<int>(mSprayContact))) {
-      return;
-    }
+    assert(1 - rawPositionIndex % 2 == static_cast<int>(mSprayContact))) {
     if(rawPositionIndex == 0 || rawPositionIndex == 1) {
       sprayPosition = SprayChangeState::Upper;
     }
@@ -123,210 +334,4 @@ void Automat::doResinWashExpired(int32_t aExpired) noexcept {
   }
   else { // nothing to do
   }
-}
-
-void Automat::doResinWash(const Event &aEvent) noexcept {
-  EventType type = aEvent.getType();
-  if(type == EventType::DResinWash) {
-    doResinWashSwitch(event.getResinWash());
-  }
-  else if(type == EventType::MWaterLevel) {
-    doResinWashWaterLevel(event.getWaterLevel());
-  }
-  else if(type == EventType::MSpray) {
-    doResinWashSpray(event.getSpray());
-  }
-  else if(type == EventType::Timer) { // TODO move
-    doResinWashExpired(event.getExpired());
-  }
-}
-
-void Automat::doRegularExpired(int32_t const aExpired) noexcept {
-  if(aExpired == cTimerSprayChangeStop) {
-    mSprayChangeTransition = false;
-    send(Actuate::Spray0);
-    if(mDesiredCirculate == OnOffState::On) {
-      send(Actuate::Circ1);
-    }
-    else { // nothing to do
-    }
-    if(mDesiredSprayChange == OnOffState::On) {
-      mTimerManager.schedule(Config::cSprayChangeKeepPosition, cTimerSprayChangePause);
-    }
-    else { // nothing to do
-    }
-  }
-  else if(aExpired == cTimerSprayChangePause) {
-    if(mDesiredSprayChange == SprayChangeState::On) {
-      if(raise(((mSprayPosition == SprayChangeState::Upper ||
-                 mSprayPosition == SprayChangeState::Lower ||
-                 mSprayPosition == SprayChangeState::Both) &&
-                 mSprayContact == OnOffState::On)) {
-        return;
-      }
-      else { // nothing to do
-      }
-      send(Actuate::Spray1);
-      send(Actuate::Circ0);  // prevent circulation during transition
-      mSprayChangeTransition = true;
-    }
-    else { // nothing to do
-    }
-  }
-  else { // nothing to do
-  }
-}
-
-void Automat::doRegularWaterLevel(const Event &event) noexcept {
-    // TODO DrainCurrent
-    EventType type = event.getType();
-    if(type == EventType::DWaterLevel) {
-        if(raise(desiredCirculate != CirculateState::On)) {
-          return;
-        }
-        desiredWaterLevel = event.getWaterLevel();
-        if(waterLevel < desiredWaterLevel - WATER_LEVEL_HISTERESIS) {
-            send(Actuate::Drain0);
-            send(Actuate::Fill1);
-            // TODO timeout
-        }
-        if(waterLevel > desiredWaterLevel + WATER_LEVEL_HISTERESIS) {
-            send(Actuate::Drain1);
-            send(Actuate::Fill0);
-            // TODO timeout
-        }
-    }
-    else if(type == EventType::MWaterLevel) {
-        waterLevel = event.getWaterLevel();
-        if(desiredCirculate == CirculateState::On) {
-            return;
-        }
-        if(waterLevel < desiredWaterLevel - WATER_LEVEL_HISTERESIS) {
-            send(Actuate::Drain0);
-            send(Actuate::Fill1);
-        }
-        else if(waterLevel > desiredWaterLevel + WATER_LEVEL_HISTERESIS) {
-            send(Actuate::Drain1);
-            send(Actuate::Fill0);
-        }
-        else {
-            // TODO cancel
-        }
-    }
-}
-
-void Automat::doRegularTemperature(const Event &event) noexcept {
-    EventType type = event.getType();
-    if(type == EventType::DTemperature) {
-        desiredTemperature = event.getTemperature();
-        if(temperature < desiredTemperature - TEMP_HISTERESIS) {
-            send(Actuate::Heat1);
-            // TODO timeout
-        }
-        if(temperature > desiredTemperature + TEMP_HISTERESIS) {
-            send(Actuate::Heat0);
-            // TODO timeout
-        }
-    }
-    else if(type == EventType::MTemperature) {
-        temperature = event.getTemperature();
-        if(temperature < desiredTemperature - TEMP_HISTERESIS) {
-            send(Actuate::Heat1);
-        }
-        else if(temperature > desiredTemperature + TEMP_HISTERESIS) {
-            send(Actuate::Heat0);
-        }
-        else {
-            // TODO cancel
-        }
-    }
-}
-
-// TODO later PWM
-void Automat::doRegularCirculate(const Event &event) noexcept {
-    EventType type = event.getType();
-    if(type == EventType::DCirc) {
-        desiredCirculate = event.getCirc();
-        if(desiredCirculate == CirculateState::On) {
-            if(sprayChangeTransition == false) {
-                send(Actuate::Circ1);
-            }
-        }
-        else {
-            send(Actuate::Circ0);
-        }
-    }
-}
-
-void Automat::doRegularSpray(const Event &event) noexcept {
-    EventType type = event.getType();
-    if(type == EventType::DSpray) {
-        SprayChangeState desired = event.getSpray();
-        if(desired != SprayChangeState::On && desired != SprayChangeState::Off) {
-            return;
-        }
-        desiredSprayChange = desired;
-        if(desiredSprayChange == SprayChangeState::On) {
-            if(raise((sprayPosition == SprayChangeState::Upper ||
-                          sprayPosition == SprayChangeState::Lower ||
-                          sprayPosition == SprayChangeState::Both) &&
-                          sprayContact == SprayChangeState::On)) {
-              return;
-            }
-            send(Actuate::Spray1);
-            send(Actuate::Circ0);  // prevent circulation during transition
-            sprayChangeTransition = true;
-        }
-    }
-    else if(type == EventType::MSpray) {
-        sprayContact = event.getSpray();
-        if(sprayContact == SprayChangeState::On) {
-            if(sprayPosition == SprayChangeState::Upper) {
-                mTimerManager.schedule(SprayChangeStop, SELECT_DOWN_ON / 2);
-                sprayPosition = SprayChangeState::Lower;
-            }
-            else if(sprayPosition == SprayChangeState::Lower) {
-                mTimerManager.schedule(SprayChangeStop, SELECT_BOTH_ON / 2);
-                sprayPosition = SprayChangeState::Both;
-            }
-            else if(sprayPosition == SprayChangeState::Both) {
-                mTimerManager.schedule(SprayChangeStop, SELECT_UP_ON / 2);
-                sprayPosition = SprayChangeState::Upper;
-            }
-        }
-    }
-}
-
-void Automat::doRegular(const Event &event) noexcept {
-    EventType type = event.getType();
-    if(type == EventType::Timer) {
-        doRegularExpired(event.getExpired());
-    }
-    else if(type == EventType::DWaterLevel || type == EventType::MWaterLevel || type == EventType::MDrainCurrent) {
-        doRegularWaterLevel(event);
-    }
-    else if(type == EventType::DTemperature || type == EventType::MTemperature) {
-        doRegularTemperature(event);
-    }
-    else if(type == EventType::DCirc || type == EventType::MCircCurrent) {
-        doRegularCirculate(event);
-    }
-    else if(type == EventType::DSpray || type == EventType::MSpray) {
-        doRegularSpray(event);
-    }
-}
-
-void Automat::process(const Event &event) noexcept {
-    if(error.load() != 0) {
-        return;
-    }
-    if(event.getType() == EventType::DResinWash || desiredResinWash == ResinWashState::On) {
-        doResinWash(event);
-    }
-    else {
-        doRegular(event);
-    }
-}
-
-void Automat::process(Error error) noexcept {
 }

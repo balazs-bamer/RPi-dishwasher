@@ -65,13 +65,13 @@ void Display::processAtEachPoll() noexcept {
 
 void Display::process(const Event &event) noexcept {
     switch(event.getType()) {
-    case EventType::MDoor:
+    case EventType::MeasuredDoor:
         door = event.getDoor();
         break;
     case EventType::MSalt:
         salt = event.getSalt();
         break;
-    case EventType::MSpray: {
+    case EventType::MeasuredSpray: {
         SprayChangeState st = event.getSpray();
         if(st == SprayChangeState::Off || st == SprayChangeState::On) {
             sprayContact = st;
@@ -81,19 +81,19 @@ void Display::process(const Event &event) noexcept {
         }
         break;
     }
-    case EventType::MLeak:
+    case EventType::MeasuredLeak:
         leak = event.getLeak();
         break;
-    case EventType::MCircCurrent:
+    case EventType::MeasuredCircCurrent:
         circCurrent = event.getCircCurrent();
         break;
-    case EventType::MDrainCurrent:
+    case EventType::MeasuredDrainCurrent:
         drainCurrent = event.getDrainCurrent();
         break;
-    case EventType::MWaterLevel:
+    case EventType::MeasuredWaterLevel:
         waterLevel = event.getWaterLevel();
         break;
-    case EventType::MTemperature:
+    case EventType::MeasuredTemperature:
         temperature = event.getTemperature();
         break;
     case EventType::Actuate: {

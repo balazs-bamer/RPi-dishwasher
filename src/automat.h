@@ -53,24 +53,17 @@ private:
   void doResinWashSwitch(OnOffState const aDesired) noexcept;
   void doResinWashWaterLevel(uint16_t const aLvel) noexcept;
   void doResinWashSpray(SprayChangeState const aSpray) noexcept;
-  void doResinWashExpired(int32_t const aExpired) noexcept;
 
   /** Controls only resin wash. After turning it off, switches every other
-   * controllable parameter off so that if resin wash finishes, doRegular
-   * won't make anything unexpected.
+   * controllable parameter off so that if resin wash finishes, other parts make anything unexpected.
    * Meanwhile it calibrates the spray change system. */
   void doResinWash(Event const &aEvent) noexcept;
+  void doWaterLevel(Event const &aEvent) noexcept;
+  void doTemperature(Event const &aEvent) noexcept;
+  void doCirculate(Event const &event) noexcept;
+  void doSpray(Event const &event) noexcept;
 
-  void doRegularExpired(int32_t const aExpired) noexcept;
-  void doRegularWaterLevel(Event const &aEvent) noexcept;
-  void doRegularTemperature(Event const &aEvent) noexcept;
-  void doRegularCirculate(Event const &event) noexcept;
-  void doRegularSpray(Event const &event) noexcept;
-
-  /** Controls circulate, spray change, water level and temperature. */
-  void doRegular(Event const &event) noexcept;
-
-  /** Won't continuously adjust for DWaterLevel. Once the wish arrives,
+  /** Won't continuously adjust for DesiredWaterLevel. Once the wish arrives,
    * drains / fills water until it is fulfilled, and then abandons it,
    * because circulation will schrink the water level in the sump.
    * When the door is open, all the events are processed as usual, the timer remains on.

@@ -281,7 +281,7 @@ protected:
   /// Handles it here and sends to other components.
   void raise(Error const aError) noexcept;
 
-  bool raise(bool const aCondition) noexcept;
+  bool assert(bool const aCondition) noexcept;
 };
 
 #endif // DISHWASHER_BASE_INCLUDED

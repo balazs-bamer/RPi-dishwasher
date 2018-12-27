@@ -156,19 +156,19 @@ void Component::run() noexcept {
   std::mutex mutex;
   std::unique_lock<std::mutex> lock(mutex);
   if(mKeepRunning) {
-    mTimerManager.push(cWatchdogPatInterval);
+    mTimerManager.schedule(cWatchdogPatInterval);
   }
   else { // nothing to do
   }
   while(mKeepRunning) {
     std::optional<int64_t> nextTimeout = mTimerManager.getEarliestValidTimeoutLength();
-    raise(nextTimeout);
+    assert(nextTimeout);
     if(mConditionVariable.wait_for(lock, nextTimeout.value() * std::chrono::microsecond) == std::cv_status::timeout) {
       std::optional<int32_t> expiredAction = mTimerEvents.pop();
       while(expiredAction) {
         if(expiredAction.value() == TimerManager::cPatWatchdog) {
 // TODO pat watchdog
-          mTimerManager.push(cWatchdogPatInterval);
+          mTimerManager.schedule(cWatchdogPatInterval);
         }
         else {
           process(expiredAction.value());
@@ -193,7 +193,7 @@ void Component::raise(Error const aError) noexcept {
   mDishwasher.send(*this, Event(aError));
 }
 
-bool Component::raise(bool const aCondition) noexcept {
+bool Component::assert(bool const aCondition) noexcept {
   if(aCondition) {
     raise(Error::Programmer);
   }

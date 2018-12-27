@@ -5,11 +5,11 @@ using namespace std;
 
 bool StaticError::shouldBeQueued(const Event &e) const noexcept {
     switch(e.getType()) {
-    case EventType::MLeak:
-    case EventType::MCircCurrent:
-    case EventType::MDrainCurrent:
-    case EventType::MWaterLevel:
-    case EventType::MTemperature:
+    case EventType::MeasuredLeak:
+    case EventType::MeasuredCircCurrent:
+    case EventType::MeasuredDrainCurrent:
+    case EventType::MeasuredWaterLevel:
+    case EventType::MeasuredTemperature:
         return true;
     default:
         return false;

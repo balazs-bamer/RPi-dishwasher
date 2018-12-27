@@ -5,7 +5,7 @@ using namespace std;
 
 bool Output::shouldBeQueued(const Event &e) const noexcept {
     switch(e.getType()) {
-    case EventType::MDoor:
+    case EventType::MeasuredDoor:
     case EventType::Actuate:
         return true;
     default:

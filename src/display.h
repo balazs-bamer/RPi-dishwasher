@@ -66,7 +66,6 @@ private:
         " Dry ",
         "Shutd"
     };
-    enum Expired : int32_t { Invalid = -1 };
 
     uint16_t waterLevel = 0;
     uint16_t temperature = 0;
