@@ -9,7 +9,7 @@ constexpr char Event::cStrSprayChangeState[][Event::cStringSize];
 constexpr char Event::cStrOnOffState[][Event::cStringSize];
 constexpr char Event::cStrActuate[][Event::cStringSize];
 constexpr char Event::cStrProgram[][Event::cStringSize];
-constexpr char Event::cStrState[][Event::cStringSize];
+constexpr char Event::cStrMachineState[][Event::cStringSize];
 constexpr char Event::cStrError[][Event::cStringSize];
 constexpr char Event::cStrEventType[][Event::cStringSize];
 
@@ -35,7 +35,7 @@ Event::Event(EventType const aType, int32_t const aArg) noexcept : mType(aType),
      aType != EventType::DesiredWaterLevel &&
      aType != EventType::DesiredTemperature &&
      aType != EventType::RemainingTime &&
-     aType != EventType::TimerFactorChanged)
+     aType != EventType::TimeFactorChanged) {
     mType = EventType::Error;
     mError = Error::Programmer;
   }
@@ -68,7 +68,7 @@ int32_t Event::getIntValue() const noexcept {
      mType != EventType::DesiredWaterLevel &&
      mType != EventType::DesiredTemperature &&
      mType != EventType::RemainingTime &&
-     mType != EventType::TimerFactorChanged) {
+     mType != EventType::TimeFactorChanged) {
     ret = cInvalid;
   }
   else {
@@ -80,7 +80,7 @@ int32_t Event::getIntValue() const noexcept {
 char const * Event::getValueConstStr() const noexcept {
   char const * result = cStrInvalid;
   if(mType == EventType::MeasuredDoor) {
-    result = cStrDoor[mIntValue + 1];
+    result = cStrDoorState[mIntValue + 1];
   }
   else if(mType == EventType::MeasuredSalt ||
           mType == EventType::MeasuredSpray ||
@@ -91,10 +91,10 @@ char const * Event::getValueConstStr() const noexcept {
     result = cStrOnOffState[mIntValue + 1];
   }
   else if(mType == EventType::Error) {
-    result = cStrError[getErrorStrIndex(mIntValue)];
+    result = cStrError[getErrorStrIndex()];
   }
   else if(mType == EventType::DesiredSpray) {
-    result = strSprayChangeState[mIntValue + 1];
+    result = cStrSprayChangeState[mIntValue + 1];
   }
   else if(mType == EventType::Actuate) {
     result = cStrActuate[mIntValue + 1];
@@ -117,7 +117,7 @@ int32_t Event::getErrorStrIndex() const noexcept {
   }
   else {
     result = 2;
-    for(uint32_t work = mIntValue; work & 1 == 0; work >>= 1u) {
+    for(uint32_t work = mIntValue; (work & 1) == 0; work >>= 1u) {
       ++result;
     }
   }
@@ -132,7 +132,7 @@ void Component::queueEvent(const Event &aEvent) noexcept {
   else { // nothing to do
   }
   if(aEvent.getType() == EventType::Error || (mErrorSoFar.load() == cNoError && shouldBeQueued(aEvent))) {
-    if(!queue.bounded_push(aEvent)) {
+    if(!mQueue.bounded_push(aEvent)) {
       raise(Error::Queue);
     }
     else {
@@ -148,7 +148,7 @@ void Component::send(Event const &aEvent) noexcept {
     raise(aEvent.getError());
   }
   else {
-    dishwasher.send(*this, aEvent);
+    mDishwasher.send(*this, aEvent);
   }
 }
 
@@ -162,9 +162,9 @@ void Component::run() noexcept {
   }
   while(mKeepRunning) {
     std::optional<int64_t> nextTimeout = mTimerManager.getEarliestValidTimeoutLength();
-    assert(nextTimeout);
-    if(mConditionVariable.wait_for(lock, nextTimeout.value() * std::chrono::microsecond) == std::cv_status::timeout) {
-      std::optional<int32_t> expiredAction = mTimerEvents.pop();
+    ensure(static_cast<bool>(nextTimeout));
+    if(mConditionVariable.wait_for(lock, nextTimeout.value() * std::chrono::microseconds) == std::cv_status::timeout) {
+      std::optional<int32_t> expiredAction = mTimerManager.pop();
       while(expiredAction) {
         if(expiredAction.value() == TimerManager::cPatWatchdog) {
 // TODO pat watchdog
@@ -173,12 +173,13 @@ void Component::run() noexcept {
         else {
           process(expiredAction.value());
         }
-        expiredAction = mTimerEvents.pop();
+        expiredAction = mTimerManager.pop();
       }
     }
     else { // nothing to do
     }
-    while(queue.pop(event)) {
+    Event event;
+    while(mQueue.pop(event)) {
       if(mErrorSoFar.load() == cNoError || event.getType() == EventType::Error) {
         process(event);
       }
@@ -193,7 +194,7 @@ void Component::raise(Error const aError) noexcept {
   mDishwasher.send(*this, Event(aError));
 }
 
-bool Component::assert(bool const aCondition) noexcept {
+bool Component::ensure(bool const aCondition) noexcept {
   if(aCondition) {
     raise(Error::Programmer);
   }

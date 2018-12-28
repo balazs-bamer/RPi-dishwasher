@@ -4,12 +4,15 @@
 #define DISHWASH_VERSION_MAJOR @DISHWASH_VERSION_MAJOR@
 #define DISHWASH_VERSION_MINOR @DISHWASH_VERSION_MINOR@
 
+#include<cstdint>
+
 // all the
 // times are in us
 // heights in mm,
 // currents in mA
 
 class Config final {
+public:
   // TODO define mm=function(temp, freq)
   static constexpr int32_t cWaterLevelFull         =    100;
   static constexpr int32_t cWaterLevelHalf         =     50;

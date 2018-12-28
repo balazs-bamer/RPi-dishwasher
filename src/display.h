@@ -72,21 +72,19 @@ private:
     uint16_t circCurrent = 0;
     uint16_t drainCurrent = 0;
     DoorState door = DoorState::Invalid;
-    SaltState salt = SaltState::Invalid;
-    LeakState leak = LeakState::Invalid;
+    OnOffState salt = OnOffState::Invalid;
+    OnOffState leak = OnOffState::Invalid;
     SprayChangeState sprayContact = SprayChangeState::Invalid;
     SprayChangeState sprayPosition = SprayChangeState::Invalid;
 
     uint8_t actuate = 0;
     Program program = Program::None;
-    State state = State::Idle;
+    MachineState state = MachineState::Idle;
     uint32_t remainingTime = 0;
 
 public:
     Display(Dishwasher &d); // TODO this should take a mutex for I2C access control
     virtual ~Display() noexcept {}
-
-    virtual void run() noexcept { doRun(DISPLAY_POLL_PERIOD); }
 
     virtual bool shouldBeQueued(const Event &e) const noexcept;
 

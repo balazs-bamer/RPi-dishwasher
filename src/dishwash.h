@@ -20,19 +20,6 @@
 
 extern std::atomic<bool> keepRunning;
 
-struct Config {
-public:
-    static constexpr uint32_t DEFAULTSLEEPNOMINATOR = 1;
-    static constexpr uint32_t DEFAULTTIMENOMINATOR = 1;
-
-    uint32_t sleepNominator = DEFAULTSLEEPNOMINATOR;
-    uint32_t timeNominator = DEFAULTTIMENOMINATOR;
-
-    uint32_t getPollPeriod(uint32_t t) noexcept { return t / sleepNominator; }
-    uint32_t getTime(uint32_t t) noexcept { return t / timeNominator; }
-};
-extern Config config;
-
 class Dishwasher final {
 private:
     Input input;

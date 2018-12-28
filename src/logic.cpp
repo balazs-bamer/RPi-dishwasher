@@ -291,6 +291,6 @@ void Logic::process(const Event &event) noexcept {
         doShutdown(event);
         break;
     default:
-        assert(false);
+        ensure(false);
     }
 }

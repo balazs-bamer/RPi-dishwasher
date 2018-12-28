@@ -135,6 +135,7 @@ private:
       }
       result = max;
     }
+    return result;
   }
 };
 

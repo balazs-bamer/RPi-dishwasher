@@ -96,7 +96,7 @@ public:
   static constexpr int32_t cInvalid    = -1;
 
   static constexpr char cStrInvalid[cStringSize] = "Invalid";
-  static constexpr char cStrDoor[][cStringSize] = {"Invalid", "Open", "Closed"};
+  static constexpr char cStrDoorState[][cStringSize] = {"Invalid", "Open", "Closed"};
   static constexpr char cStrSprayChangeState[][cStringSize] = { "Invalid", "Upper", "Lower", "Both" };
   static constexpr char cStrOnOffState[][cStringSize] = { "Invalid", "Off", "On" };
 
@@ -214,19 +214,19 @@ class Component : public BanCopyMove {
 
   boost::lockfree::queue<Event> mQueue;
 
-  /** All errors are ORed together here. */
-  std::atomic<int32_t> mErrorSoFar = 0;
-
   /// A MachineState::Shutdown fill set it false if needed
   bool mKeepRunning;
 
-  TimerManager mTimerManager;
   std::condition_variable mConditionVariable;
 
 protected:
+  /** All errors are ORed together here. */
+  std::atomic<int32_t> mErrorSoFar = 0;
+
+  TimerManager mTimerManager;
+
   Dishwasher &mDishwasher;
 
-private:
   /** This and derived constructors may throw exception if some library or hardware component fails.
   This and derived constructors will initialize all the needed libraries and hardware. */
   Component(Dishwasher &aDishwasher) : mQueue(cMessageQueueSize), mTimerManager(cTimerCount), mDishwasher(aDishwasher) {
@@ -260,7 +260,7 @@ protected:
   virtual bool shouldBeQueued(Event const &) const noexcept = 0;
 
   void schedule(int64_t const aDelay, int32_t const aTimerAction) noexcept {
-    mKeepRunning = mKeepRunning && mTimerManager.push(aDelay, aTimerAction);
+    mKeepRunning = mKeepRunning && mTimerManager.schedule(aDelay, aTimerAction);
   }
 
   void send(Event const &) noexcept;
@@ -281,7 +281,7 @@ protected:
   /// Handles it here and sends to other components.
   void raise(Error const aError) noexcept;
 
-  bool assert(bool const aCondition) noexcept;
+  bool ensure(bool const aCondition) noexcept;
 };
 
 #endif // DISHWASHER_BASE_INCLUDED

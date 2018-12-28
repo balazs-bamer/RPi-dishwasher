@@ -6,7 +6,6 @@
 /** Manages water level, temperature, circulation and spray selector
  * based on measured values and desired values. */
 class Automat final : public Component {
-private:
   static constexpr int32_t cSprayChangeMaxMeasuredTimeCount          = 30;
   static constexpr int32_t cExpectedSprayChangeTimeCount             = 18;
   static constexpr int32_t cSprayChangeCycle                         =  6;
@@ -14,7 +13,6 @@ private:
   static constexpr int32_t cTimerDecelerateSearchSprayChangePosition =  1;
   static constexpr int32_t cTimerSprayChangeStop                     =  2;
   static constexpr int32_t cTimerSprayChangePause                    =  3;
-  };
 
   OnOffState mDesiredResinWash   = OnOffState::Off;
   int16_t    mDesiredTemperature = 0;
@@ -26,7 +24,7 @@ private:
   uint16_t         mTemperature = 0;
   uint16_t         mCircCurrent = 0;
   uint16_t         mDrainCurrent = 0;
-  SprayChangeState mSprayContact = SprayChangeState::Invalid;
+  OnOffState       mSprayContact = OnOffState::Invalid;
   /** Valid if sprayContact is on. Signs the previous state if it is off. */
   SprayChangeState mSprayPosition = SprayChangeState::Invalid;
   bool             mSprayChangeTransition = false;
@@ -52,7 +50,7 @@ protected:
 private:
   void doResinWashSwitch(OnOffState const aDesired) noexcept;
   void doResinWashWaterLevel(uint16_t const aLvel) noexcept;
-  void doResinWashSpray(SprayChangeState const aSpray) noexcept;
+  void doResinWashSpray(OnOffState const aSpray) noexcept;
 
   /** Controls only resin wash. After turning it off, switches every other
    * controllable parameter off so that if resin wash finishes, other parts make anything unexpected.

@@ -26,7 +26,7 @@ class Logic final : public Component {
     // other value is the target temperature or time
   };
 
-  static constexpr uint16_t temperatures[static_cast<int32_t>(Program::Count)][static_cast<int32_t>(State::Count)] = {
+  static constexpr uint16_t temperatures[static_cast<int32_t>(Program::Count)][static_cast<int32_t>(MachineState::Count)] = {
 //           Idle, Drain, Resin, PreWash, Wash, Rinse1, Rinse2, Rinse3, Dry, Shutdown
 /*None*/   { No,   No,    No,    No,      No,   No,     No,     No,     No,  Yes },
 /*Stop*/   { No,   No,    No,    No,      No,   No,     No,     No,     No,  Yes },
@@ -41,7 +41,7 @@ class Logic final : public Component {
 /*Cook*/   { No,   Yes,   No,    65,      No,   No,     No,     No,     Yes, No  }
   };
 
-  static constexpr uint16_t waitMinutes[static_cast<int32_t>(Program::Count)][static_cast<int32_t>(State::Count)] = {
+  static constexpr uint16_t waitMinutes[static_cast<int32_t>(Program::Count)][static_cast<int32_t>(MachineState::Count)] = {
 //                         ? TODO measure water quantity
 //           Idle, Drain, Resin, PreWash, Wash, Rinse1, Rinse2, Rinse3, Dry, Shutdown
 /*None*/   { No,   No,    No,    No,      No,   No,     No,     No,     No,  Yes },
@@ -57,14 +57,14 @@ class Logic final : public Component {
 /*Cook*/   { No,   Yes,   No,    60,      No,   No,     No,     No,     50,  No  }
   };
 
-  State   mState                     = State::Idle;
-  Program mProgram                   = Program::None;
-  bool    mNeedDetergent             = false;
-  bool    mDoorOpen                  = false;
-  bool    mResinWashReady            = false;
-  bool    mResinStopProgramWhenReady = false;
-  bool    mWashWaterFill             = false;
-  bool    mWashWaterDrain            = false;
+  MachineState mState                     = MachineState::Idle;
+  Program      mProgram                   = Program::None;
+  bool         mNeedDetergent             = false;
+  bool         mDoorOpen                  = false;
+  bool         mResinWashReady            = false;
+  bool         mResinStopProgramWhenReady = false;
+  bool         mWashWaterFill             = false;
+  bool         mWashWaterDrain            = false;
 
   /** Temperature to reach in this state, if applicable. 0 is no heating.*/
   int16_t mTargetTemperature;
