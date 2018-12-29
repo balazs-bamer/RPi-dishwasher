@@ -10,10 +10,6 @@
 /// Class to manage action delays and changing realtime execution by dividing the delay length with a custom dividor.
 /// The constructor will choose the most precise steady clock to use.
 class TimerManager final : public BanCopyMove  {
-public:
-  static constexpr int32_t cPatWatchdog = -1;
-
-private:
   enum class ClockToUse : int32_t {
     HighResolution = 0,
     Steady         = 1
@@ -29,7 +25,7 @@ private:
   struct Timer final {
     int64_t const start;  /// us
     int64_t const length; /// us, realtime without dividing
-    int32_t const action; /// cPatWatchdog for watchdog event, otherwise must be >= 0
+    int32_t const action;
 
     /// -1 for beginning
     int32_t prevIndex;
@@ -37,14 +33,11 @@ private:
     /// -1 for final
     int32_t nextIndex;
 
-    Timer(int64_t const aStart, int64_t const aLength) : start(aStart), length(aLength), action(cPatWatchdog), prevIndex(cEmptyIndex), nextIndex(cEmptyIndex) {
-    }
-
     Timer(int64_t const aStart, int64_t const aLength, int32_t aAction) : start(aStart), length(aLength), action(aAction), prevIndex(cEmptyIndex), nextIndex(cEmptyIndex) {
     }
 
     double getExpiration() const noexcept {
-      return start + length / (action == cPatWatchdog ? cRealtime : sTimeDividor);
+      return start + length / sTimeDividor;
     }
 
     bool operator<(Timer const &other) const noexcept {
@@ -54,8 +47,16 @@ private:
 
   ClockToUse mClockToUse = ClockToUse::Steady;
 
+  int64_t mWatchdogStart;
+  int64_t mWatchdogLength;
+
   /// Can be anything from 1 up
   static double sTimeDividor;
+
+  /// True if only watchdog events are considered
+  bool    mPaused     = false;
+
+  std::optional<int64_t> mPauseStart;
 
   /// cEmptyIndex if the list is empty
   int32_t mStartIndex = cEmptyIndex;
@@ -70,7 +71,7 @@ private:
   }
 
 public:
-  TimerManager(int32_t const aMaxLength) noexcept;
+  TimerManager(int32_t const aMaxLength, int32_t const aWatchdogLength) noexcept;
 
   ~TimerManager() noexcept {
     delete[] mTimers;
@@ -84,19 +85,25 @@ public:
 
   void setTimeDividor(double const aTimeDividor) noexcept;
 
+  void pause() noexcept {
+    if(!mPauseStart) {
+      mPauseStart = now();
+    }
+    else { // nothing to do
+    }
+  }
+
+  void resume() noexcept;
+
   int64_t now() noexcept;
 
-  /// Creates an immutable (watchdog) timer from now on
-  /// @param aLength planned delay in us
-  bool schedule(int64_t const aLength) noexcept {
-    return schedule(Timer(now(), aLength));
-  }
+  void keepPattingWatchdog() noexcept;
 
   /// Creates an action timer from now on
   /// @param aLength planned delay in us
   /// @param aAction action as int to delay
   bool schedule(int64_t const aLength, int32_t const aAction) noexcept {
-    return aAction <= cPatWatchdog ? false : schedule(Timer(now(), aLength, aAction));
+    return schedule(Timer(now(), aLength, aAction));
   }
 
   /// May only be called if the actual timer expired, so there is something to return.

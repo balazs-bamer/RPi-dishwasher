@@ -2,12 +2,15 @@
 #include <cmath>
 #include <algorithm>
 
-TimerManager::TimerManager(int32_t const aMaxLength) noexcept : {
+TimerManager::TimerManager(int32_t const aMaxLength, int32_t const aWatchdogLength) noexcept
+  : mWatchdogLength(aWatchdogLength)
+  , mMaxLength(aMaxLength){
   mTimers = new Timer[aMaxLength];
   std::optional<int32_t> highResolutionDelay = measureShortestThreadSleep<std::chrono::high_resolution_clock>();
   std::optional<int32_t> steadyDelay = measureShortestThreadSleep<std::chrono::steady_clock>();
   mClockToUse = (highResolutionDelay && highResolutionDelay.value() < steadyDelay.value() ? ClockToUse::HighResolution : ClockToUse::Steady);
   sTimeDividor = cRealtime;
+  mWatchdogStart = now();
 }
 
 std::optional<int64_t> getEarliestValidTimeoutLength() const noexcept {
@@ -16,11 +19,18 @@ std::optional<int64_t> getEarliestValidTimeoutLength() const noexcept {
   int32_t currentIndex = mStartIndex;
   for(int32_t i = 0; i < mLength; ++i) {
     double expires = mTimers[currentIndex].getExpiration();
-    if(expires > now) {
+    if(!mPaused && expires > now) {
       result = expires - now;
       break;
     }
+    else { // nothing to do
+    }
     currentIndex = mTimers[currentIndex].nextIndex;
+  }
+  if(!result || result < mWatchdogStart + mWatchdogLength - now) {
+    result = mWatchdogStart + mWatchdogLength - now;
+  }
+  else { // nothing to do
   }
   return result;
 }
@@ -36,6 +46,17 @@ void TimerManager::setTimeDividor(double const aTimeDividor) noexcept {
       mTimers[i].prevIndex = (i < mLength - 1 ? i + 1 : cEmptyIndex);
     }
   }
+  else { // nothing to do
+  }
+}
+
+void TimerManager::resume() noexcept {
+  int64_t shift = now() - mPauseStart;
+  mPauseStart.reset();
+  for(int32_t i = 0; i < mLength; ++i) {
+    mTimers[i] += shift;
+  }
+  setTimeDividor(sTimeDividor);
 }
 
 int64_t TimerManager::now() noexcept {
@@ -49,9 +70,13 @@ int64_t TimerManager::now() noexcept {
   return result;
 }
 
+void TimerManager::keepPattingWatchdog() noexcept {
+  mWatchdogStart = now();
+}
+
 std::optional<int32_t> TimerManager::pop() {
   std::optional<int32_t> result;
-  if(mLength > 0 && now() >= mTimers[mStartIndex].getExpiration()) {
+  if(!mPaused && mLength > 0 && now() >= mTimers[mStartIndex].getExpiration()) {
     result = mTimers[mStartIndex].action;
     if(mLength == 1) {
       mStartIndex = mEndIndex = cEmptyIndex;
@@ -63,8 +88,12 @@ std::optional<int32_t> TimerManager::pop() {
         if(mTimers[mStartIndex].nextIndex != cEmptyIndex) {
           mTimers[mTimers[mStartIndex].nextIndex].prevIndex = mStartIndex;
         }
+        else { // nothing to do
+        }
         if(mTimers[mStartIndex].prevIndex != cEmptyIndex) {
           mTimers[mTimers[mStartIndex].prevIndex].nextIndex = mStartIndex;
+        }
+        else { // nothing to do
         }
         mStartIndex = nextStart;
       }
