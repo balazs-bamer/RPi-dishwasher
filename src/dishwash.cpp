@@ -1,73 +1,44 @@
-#include <signal.h>
-#include <iostream>
-
-// TODO
-#include <curses.h>
-
 #include "dishwash.h"
-
-using namespace std;
-
-Config config;
-
-std::atomic<bool> keepRunning;
+#include <signal.h>
 
 void signalHandler(int s) {
-    keepRunning.store(false);
+  Dishwasher::stop();
 }
 
-Dishwasher::Dishwasher() :
-    input(*this),
-    staticError(*this),
-    logic(*this),
-    display(*this),
-    automat(*this),
-    output(*this),
-    components{&input, &staticError, &logic, &display, &automat, &output}
-#ifndef NDEBUG
-  , log("log.txt")
-#endif
-{
-    keepRunning.store(true);
-    signal(SIGTERM, signalHandler);
-    signal(SIGINT, signalHandler);
+Dishwasher::Dishwasher(std::initializer_list<Component*> aComponents)
+  : mComponents(aComponents) {
+  sKeepRunning.store(true);
+  signal(SIGTERM, signalHandler);
+  signal(SIGINT, signalHandler);
 }
 
-Dishwasher::~Dishwasher() {
+void Dishwasher::run() {
+  uint32_t startCount = 0;
+  try {
+    for(auto i : mComponents) {
+      i->start(this);
+      ++startCount;
+    }
+  }
+  catch(std::exception &e) {
+// TODO log
+  }
+  if(startCount == mComponents.size()) {
+    while(keepRunning.load()) {
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+  }
+  while(startCount > 0) {
+    mComponents[--startCount]->stop();
+  }
 }
 
-void Dishwasher::doIt() {
-    int i;
-    try {
-        for(i = 0; i < NUMCOMPONENTS; ++i) {
-            components[i]->start();
-        }
+void Dishwasher::send(Component *aOrigin, Event const &aEvent) noexcept {
+  for(auto i : mComponents) {
+    if(i != aOrigin) {
+      i->queueEvent(aEvent);
     }
-    catch(exception &e) {
-        cerr << e.what() << endl;
+    else { // nothing to do
     }
-    if(i == NUMCOMPONENTS) {
-        while(keepRunning.load()) {
-
-int ch = getch();
-cerr << "-ch: " << ch << endl;
-//printw("wewee");
-            this_thread::sleep_for(1s);
-        }
-    }
-    for(--i; i >= 0; --i) {
-        components[i]->stop();
-    }
-}
-
-void Dishwasher::send(const Component &c, const Event &e) noexcept {
-    cerr << "erer" << endl;
-#ifndef NDBEUG
-    log << string("Message: ") << static_cast<string>(e) << endl;
-#endif
-    for(int i = 0; i < NUMCOMPONENTS; i++) {
-        if(&c != dynamic_cast<Component*>(components[i])) {
-            components[i]->queueEvent(e);
-        }
-    }
+  }
 }

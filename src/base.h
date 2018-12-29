@@ -16,7 +16,7 @@ enum class DoorState : int32_t { Invalid = -1, Open, Closed };
 
 /** Used to turn on/off regular spray change and sign spray contact state.
  * Used internally to remember position. */
-enum class SprayChangeState : int32_t { Invalid = -1, Upper, Lower, Both };
+enum class SprayChangeState : int32_t { Invalid = -1, Off, Upper, Lower, Both };
 
 enum class OnOffState : int32_t { Invalid = -1, Off, On };
 
@@ -205,10 +205,17 @@ private:
 class Dishwasher;
 
 class Component : public BanCopyMove {
-  static constexpr int32_t cWatchdogPatInterval = 100000;  // 0.1s
-  static constexpr int32_t cMessageQueueSize    =    128u;
-  static constexpr int32_t cNoError             =      0;
-  static constexpr int32_t cTimerCount          =     20;
+protected:
+  static constexpr int32_t cUsInMinute          =  60000000;
+  static constexpr int32_t cUsInSecond          =   1000000;
+  static constexpr int32_t cMsInMinute          =     60000;
+  static constexpr int32_t cMsInSecond          =      1000;
+
+private:
+  static constexpr int32_t cWatchdogPatInterval =    100000;  // 0.1s
+  static constexpr int32_t cMessageQueueSize    =       128;
+  static constexpr int32_t cNoError             =         0;
+  static constexpr int32_t cTimerCount          =        20;
 
   std::thread mThread;
 
@@ -225,11 +232,11 @@ protected:
 
   TimerManager mTimerManager;
 
-  Dishwasher &mDishwasher;
+  Dishwasher *mDishwasher = nullptr;
 
   /** This and derived constructors may throw exception if some library or hardware component fails.
   This and derived constructors will initialize all the needed libraries and hardware. */
-  Component(Dishwasher &aDishwasher) : mQueue(cMessageQueueSize), mTimerManager(cTimerCount), mDishwasher(aDishwasher) {
+  Component() : mQueue(cMessageQueueSize), mTimerManager(cTimerCount, cWatchdogPatInterval) {
     mKeepRunning = mQueue.is_lock_free() && mTimerManager;
   }
 
@@ -241,7 +248,8 @@ public:
   Component& operator=(Component const &) = delete;
   Component& operator=(Component &&) = default;
 
-  void start() {
+  void start(Dishwasher * const aDishwasher) {
+    mDishwasher = aDishwasher;
     mThread = std::thread(&Component::run, this);
   }
 

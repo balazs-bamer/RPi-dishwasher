@@ -15,10 +15,11 @@ Display::Display(Dishwasher &d) : Component(d) {
 
 bool Display::shouldBeQueued(const Event &e) const noexcept {
     switch(e.getAggregateType()) {
-    case EventType::Measured:
+    case EventType::Measured: // TODO use door state to pause countdown
     case EventType::Actuate:
     case EventType::Program:
     case EventType::Display:
+      // RemainingTime
         return true;
     default:
         return false;
@@ -111,7 +112,7 @@ void Display::process(const Event &event) noexcept {
     case EventType::Program:
         program = event.getProgram();
         break;
-    case EventType::State:
+    case EventType::MachineState:
         state = event.getState();
         break;
     case EventType::RemainingTime:

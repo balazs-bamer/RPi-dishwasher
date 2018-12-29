@@ -7,18 +7,13 @@
 /** Performs the program logic using internal timer and measured values.
  * Sends actoator commands or desired values. */
 class Logic final : public Component {
-  static constexpr uint32_t cMsInMinute = 60000;
-
-  enum class Expired : int32_t {
-    Invalid        = -1,
-    StartStep      =  0,
-    ResinWashReady =  1,
-    WashDetergent  =  2,
-    WashWash       =  3,
-    DryRegenerate  =  4,
-    DryReady       =  5,
-    ShutdownReady  =  6
-  };
+  static constexpr int32_t cTimerBeforeNextStep = 0;
+  static constexpr int32_t cTimerResinWashReady = 1;
+  static constexpr int32_t cTimerWashDetergent  = 2;
+  static constexpr int32_t cTimerWashWash       = 3;
+  static constexpr int32_t cTimerDryRegenerate  = 4;
+  static constexpr int32_t cTimerDryReady       = 5;
+  static constexpr int32_t cTimerShutdownReady  = 6;
 
   enum What : uint16_t {
     No  = 0,  // not performed
@@ -26,7 +21,7 @@ class Logic final : public Component {
     // other value is the target temperature or time
   };
 
-  static constexpr uint16_t temperatures[static_cast<int32_t>(Program::Count)][static_cast<int32_t>(MachineState::Count)] = {
+  static constexpr uint16_t cTemperatures[static_cast<int32_t>(Program::Count)][static_cast<int32_t>(MachineState::Count)] = {
 //           Idle, Drain, Resin, PreWash, Wash, Rinse1, Rinse2, Rinse3, Dry, Shutdown
 /*None*/   { No,   No,    No,    No,      No,   No,     No,     No,     No,  Yes },
 /*Stop*/   { No,   No,    No,    No,      No,   No,     No,     No,     No,  Yes },
@@ -41,7 +36,7 @@ class Logic final : public Component {
 /*Cook*/   { No,   Yes,   No,    65,      No,   No,     No,     No,     Yes, No  }
   };
 
-  static constexpr uint16_t waitMinutes[static_cast<int32_t>(Program::Count)][static_cast<int32_t>(MachineState::Count)] = {
+  static constexpr uint16_t cWaitMinutes[static_cast<int32_t>(Program::Count)][static_cast<int32_t>(MachineState::Count)] = {
 //                         ? TODO measure water quantity
 //           Idle, Drain, Resin, PreWash, Wash, Rinse1, Rinse2, Rinse3, Dry, Shutdown
 /*None*/   { No,   No,    No,    No,      No,   No,     No,     No,     No,  Yes },
@@ -70,16 +65,7 @@ class Logic final : public Component {
   int16_t mTargetTemperature;
 
   /** Time to wait in this step, if applicable. */
-  int32_t mTargetTime;               // ms
-
-  int32_t mRemainingTime;            // ms
-
-public:
-  Logic(Dishwasher &d) : Component(d) {
-  }
-
-  virtual ~Logic() noexcept {
-  }
+  int64_t mTargetTime;               // us
 
 protected:
   virtual bool shouldHaltOnError() const noexcept {
@@ -92,7 +78,7 @@ private:
   void turnOffAll() noexcept;
   bool handleDoor(Event const &aEvent) noexcept;
 
-  /** State transition according to program.
+  /** MachineState transition according to program.
    * Every do* function must assure that all signals are shut down before this occurs. */
   void nextState() noexcept;
 
@@ -102,28 +88,25 @@ private:
   /** Only allows a program to be chosen. */
   void doIdle(Event const &aEvent) noexcept;
 
-  void doDrainExpired(int32_t const aExpired) noexcept;
-  void doDrainMeasured(Event const &aEvent) noexcept;
+  void doDrain(int32_t const aExpired) noexcept;
 
   /** Drains the water if initially present. */
-  void doDrain(const Event &event) noexcept;
+  void doDrain(Event const &aEvent) noexcept;
 
-  void doResinWashExpired(int32_t const aExpired) noexcept;
-  void doResinWashMeasured(Event const &aEvent) noexcept;
+  void doResinWash(int32_t const aExpired) noexcept;
 
   /** Starts the drain pump and lets 2l fresh water in
    * to wash them resin from the salt. */
   void doResinWash(Event const &aEvent) noexcept;
 
-  void doWashExpired(int32_t const aExpired) noexcept;
-  void doWashMeasured(Event const &aEvent) noexcept;
+  void doWash(int32_t const aExpired) noexcept;
 
   /** Fills in water. Starts to circulate it, heats if needed and opens the detergent lid if needed.
    * Continues doing so for the predetermined time.
    * After finishing shuts off heating and drains the water. */
   void doWash(Event const &aEvent) noexcept;
 
-  void doDryExpired(int32_t const aExpired) noexcept;
+  void doDry(int32_t const aExpired) noexcept;
 
   /** In the beginning it opens the regeneration valve for some time then closes it.
    * After it simply does nothing, and the water evaoprates from the hot dishes and
@@ -131,7 +114,7 @@ private:
   void doDry(Event const &aEvent) noexcept;
 
   /** Shuts down the machine if needed. */
-  void doShutdown(Event const &aEvent) noexcept;
+  void doShutdown(int32_t const aEvent) noexcept;
 
   /** When the door is open, all the events except of errors and door events are discarded.
    * Timer is also paused. Output turns off all physical outputs as well, so nothing will be missed. */

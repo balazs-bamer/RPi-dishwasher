@@ -9,6 +9,7 @@ class Automat final : public Component {
   static constexpr int32_t cSprayChangeMaxMeasuredTimeCount          = 30;
   static constexpr int32_t cExpectedSprayChangeTimeCount             = 18;
   static constexpr int32_t cSprayChangeCycle                         =  6;
+
   static constexpr int32_t cTimerFinishSearchSprayChangePosition     =  0;
   static constexpr int32_t cTimerDecelerateSearchSprayChangePosition =  1;
   static constexpr int32_t cTimerSprayChangeStop                     =  2;
@@ -32,13 +33,6 @@ class Automat final : public Component {
   int              mMeasuredTimeCount = 0;
   int64_t          mSprayChangeTimes[cSprayChangeMaxMeasuredTimeCount];
   int64_t          mMeasureStart;
-
-public:
-  Automat(Dishwasher &d) : Component(d) {
-  }
-
-  virtual ~Automat() noexcept {
-  }
 
 protected:
   virtual bool shouldHaltOnError() const noexcept {

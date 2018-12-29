@@ -1,55 +1,33 @@
 #ifndef DISHWASHER_DISHWASH_INCLUDED
 #define DISHWASHER_DISHWASH_INCLUDED
 
-
-#ifndef NDEBUG
-#include <fstream>
-#endif
-
-#include <array>
-
 #include "base.h"
-#include "input.h"
-#include "staticerror.h"
-#include "logic.h"
-#include "display.h"
-#include "automat.h"
-#include "output.h"
-
-#define NUMCOMPONENTS 6
+#include <vector>
 
 extern std::atomic<bool> keepRunning;
 
-class Dishwasher final {
+class Dishwasher final : public BanCopyMove {
 private:
-    Input input;
-    StaticError staticError;
-    Logic logic;
-    Display display;
-    Automat automat;
-    Output output;
-    Component* const components[NUMCOMPONENTS];
-
-#ifndef NDEBUG
-    std::ofstream log;
-#endif
+  static std::atomic<bool> sKeepRunning;
+  std::vector<Component*> mComponents;
 
 public:
-    /** This may throw exception if some library or hardware component fails. */
-    Dishwasher();
-    ~Dishwasher();
+  /** This may throw exception if some library or hardware component fails. */
+  Dishwasher(std::initializer_list<Component*>);
 
-    Dishwasher(const Dishwasher &i) = delete;
-    Dishwasher(Dishwasher &&i) = delete;
-    Dishwasher& operator=(const Dishwasher &i) = delete;
-    Dishwasher& operator=(Dishwasher &&i) = delete;
+  ~Dishwasher() {
+  }
 
-    /** This may throw exceptions if thread creation fails. If every one succeeds,
-    all the subsequent functions have no-throw guarantee. */
-    void doIt();
+  static void stop() noexcept {
+    sKeepRunning.store(false);
+  }
 
-    /** Sends e to all components except for the originating. */
-    void send(const Component &c, const Event &e) noexcept;
+  /** This may throw exceptions if thread creation fails. If every one succeeds,
+  all the subsequent functions have no-throw guarantee. */
+  void run();
+
+  /** Sends the event to all components except for the originating one. */
+  void send(Component *aOrigin, Event const &aEvent) noexcept;
 };
 
 #endif // DISHWASHER_DISHWASH_INCLUDED

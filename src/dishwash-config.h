@@ -54,7 +54,7 @@ public:
   static constexpr int32_t cCirculateOnTime        =   2000 * 1000;
 
   static constexpr int32_t cSleepBeforeNextStep    =   5000 * 1000;
-  static constexpr int32_t cAverageFillDrainMin    =      2;
+  static constexpr int32_t cAverageFillDrainSeconds =   100;
   static constexpr int32_t cRegenerateValveTime    = 180000 * 1000;
   static constexpr int32_t cResinWashTime          = 120000 * 1000; // ms must be longer than cSprayChangeSearch
   static constexpr int32_t cWashDetergentOpenTime  =    200 * 1000;

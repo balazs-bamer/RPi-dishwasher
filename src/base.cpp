@@ -3,7 +3,7 @@
 #include <mutex>
 
 
-constexpr char Event::cStrInvalid[cStringSize];
+constexpr char Event::cStrInvalid[Event::cStringSize];
 constexpr char Event::cStrDoorState[][Event::cStringSize];
 constexpr char Event::cStrSprayChangeState[][Event::cStringSize];
 constexpr char Event::cStrOnOffState[][Event::cStringSize];
@@ -148,31 +148,21 @@ void Component::send(Event const &aEvent) noexcept {
     raise(aEvent.getError());
   }
   else {
-    mDishwasher.send(*this, aEvent);
+    mDishwasher->send(this, aEvent);
   }
 }
 
 void Component::run() noexcept {
   std::mutex mutex;
   std::unique_lock<std::mutex> lock(mutex);
-  if(mKeepRunning) {
-    mTimerManager.schedule(cWatchdogPatInterval);
-  }
-  else { // nothing to do
-  }
   while(mKeepRunning) {
     std::optional<int64_t> nextTimeout = mTimerManager.getEarliestValidTimeoutLength();
-    ensure(static_cast<bool>(nextTimeout));
-    if(mConditionVariable.wait_for(lock, nextTimeout.value() * std::chrono::microseconds) == std::cv_status::timeout) {
+    if(mConditionVariable.wait_for(lock, std::chrono::microseconds(nextTimeout.value())) == std::cv_status::timeout) {
+      // TODO pat watchdog
+      mTimerManager.keepPattingWatchdog();
       std::optional<int32_t> expiredAction = mTimerManager.pop();
       while(expiredAction) {
-        if(expiredAction.value() == TimerManager::cPatWatchdog) {
-// TODO pat watchdog
-          mTimerManager.schedule(cWatchdogPatInterval);
-        }
-        else {
-          process(expiredAction.value());
-        }
+        process(expiredAction.value());
         expiredAction = mTimerManager.pop();
       }
     }
@@ -191,7 +181,7 @@ void Component::run() noexcept {
 
 void Component::raise(Error const aError) noexcept {
   mErrorSoFar |= static_cast<int32_t>(aError);
-  mDishwasher.send(*this, Event(aError));
+  mDishwasher->send(this, Event(aError));
 }
 
 bool Component::ensure(bool const aCondition) noexcept {

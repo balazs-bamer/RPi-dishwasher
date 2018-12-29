@@ -4150,3 +4150,46 @@
 	<boost/config.hpp>
 	<boost/parameter/aux_/void.hpp>
 
+1545996676 source:c:\users\bamer\rpi-dishwasher\src\automat.cpp
+	"dishwash-config.h"
+	"automat.h"
+	"dishwash.h"
+
+1546101096 c:\users\bamer\rpi-dishwasher\src\dishwash-config.h
+	<cstdint>
+
+1546098936 c:\users\bamer\rpi-dishwasher\src\automat.h
+	"base.h"
+
+1546109120 c:\users\bamer\rpi-dishwasher\src\base.h
+	"dishwash-config.h"
+	"bancopymove.h"
+	"timer.h"
+	<chrono>
+	<atomic>
+	<thread>
+	<functional>
+	<condition_variable>
+	<boost/lockfree/queue.hpp>
+
+1545927478 c:\users\bamer\rpi-dishwasher\src\bancopymove.h
+
+1546099625 c:\users\bamer\rpi-dishwasher\src\timer.h
+	"bancopymove.h"
+	<array>
+	<thread>
+	<chrono>
+	<optional>
+
+1546078914 c:\users\bamer\rpi-dishwasher\src\dishwash.h
+	"base.h"
+	<vector>
+
+1546097947 source:c:\users\bamer\rpi-dishwasher\src\base.cpp
+	"dishwash.h"
+	<mutex>
+
+1546079467 source:c:\users\bamer\rpi-dishwasher\src\dishwash.cpp
+	"dishwash.h"
+	<signal.h>
+

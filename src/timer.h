@@ -83,6 +83,11 @@ public:
 
   std::optional<int64_t> getEarliestValidTimeoutLength() const noexcept;
 
+  void cancelAll() noexcept {
+    mStartIndex = mEndIndex = cEmptyIndex;
+    mLength = 0;
+  }
+
   void setTimeDividor(double const aTimeDividor) noexcept;
 
   void pause() noexcept {
