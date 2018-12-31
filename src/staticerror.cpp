@@ -20,6 +20,6 @@ void StaticError::process(const Event &event) noexcept {
 
 }
 
-void StaticError::process(Error error) noexcept {
+void StaticError::process(int32_t const aExpired) noexcept {
 
 }

@@ -4,6 +4,7 @@
 #include "dishwash-config.h"
 #include "bancopymove.h"
 #include "timer.h"
+#include "log.h"
 
 #include <chrono>
 #include <atomic>
@@ -13,10 +14,6 @@
 #include <boost/lockfree/queue.hpp>
 
 enum class DoorState : int32_t { Invalid = -1, Open, Closed };
-
-/** Used to turn on/off regular spray change and sign spray contact state.
- * Used internally to remember position. */
-enum class SprayChangeState : int32_t { Invalid = -1, Off, Upper, Lower, Both };
 
 enum class OnOffState : int32_t { Invalid = -1, Off, On };
 
@@ -77,7 +74,7 @@ enum class EventType : int32_t {
   MeasuredWaterLevel,   // Input                         int32_t
   MeasuredTemperature,  // Input                         int32_t
   Error,                // any                           Error
-  DesiredSpray,         // Logic                         SprayChangeState
+  DesiredSpray,         // Logic                         OnOffState
   DesiredCirc,          // Logic                         OnOffState
   DesiredWaterLevel,    // Logic                         int32_t
   DesiredTemperature,   // Logic                         int32_t
@@ -130,7 +127,6 @@ private:
     /// water level: mm, temperature: Celsius, current: mA, time: s
     int32_t          mIntValue;
     Error            mError;
-    SprayChangeState mSprayChange;
     Actuate          mActuate;
     Program          mProgram;
     MachineState     mMachineState;
@@ -146,9 +142,6 @@ public:
   Event(EventType const aType, int32_t const aArg) noexcept;
 
   Event(Error const aArg) noexcept : mType(EventType::Error), mError(aArg) {
-  }
-
-  Event(SprayChangeState const aArg) noexcept : mType(EventType::DesiredSpray), mSprayChange(aArg) {
   }
 
   Event(Actuate const aArg) noexcept : mType(EventType::Actuate), mActuate(aArg) {
@@ -173,10 +166,6 @@ public:
 
   Error getError() const noexcept {
     return mType == EventType::Error ? mError : Error::Invalid;
-  }
-
-  SprayChangeState getSpray() const noexcept {
-    return mType == EventType::DesiredSpray ? mSprayChange : SprayChangeState::Invalid;
   }
 
   Actuate getActuate() const noexcept {
@@ -267,10 +256,6 @@ protected:
   /// Does not have to check for errors or timed events, since they are handle independently.
   virtual bool shouldBeQueued(Event const &) const noexcept = 0;
 
-  void schedule(int64_t const aDelay, int32_t const aTimerAction) noexcept {
-    mKeepRunning = mKeepRunning && mTimerManager.schedule(aDelay, aTimerAction);
-  }
-
   void send(Event const &) noexcept;
 
   void send(EventType const aType, int32_t const aValue) noexcept {
@@ -289,7 +274,13 @@ protected:
   /// Handles it here and sends to other components.
   void raise(Error const aError) noexcept;
 
-  bool ensure(bool const aCondition) noexcept;
+  void ensure(bool const aCondition) {
+    if(aCondition) {
+      throw std::logic_error("ensure");
+    }
+    else { // nothing to do
+    }
+  }
 };
 
 #endif // DISHWASHER_BASE_INCLUDED

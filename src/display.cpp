@@ -3,29 +3,14 @@
 
 using namespace std;
 
-constexpr char Display::errorMessages[][12];
-constexpr char Display::programNames[][6];
-constexpr char Display::stateNames[][6];
+constexpr char Display::errorMessages[][cStrLengthLong];
+constexpr char Display::programNames[][cStrLengthShort];
+constexpr char Display::stateNames[][cStrLengthShort];
 
-Display::Display(Dishwasher &d) : Component(d) {
-}
-
-bool Display::shouldBeQueued(const Event &e) const noexcept {
-    switch(e.getAggregateType()) {
-    case EventType::Measured:
-    case EventType::Actuate:
-    case EventType::Program:
-    case EventType::Display:
-        return true;
-    default:
-        return false;
-    }
-}
-
-void Display::processAtEachPoll() noexcept {
+void Display::process(Event const &aEvent) noexcept {
 
 }
 
-void Display::process(const Event &event) noexcept {
+void Display::process(int32_t const aExpired) noexcept {
 
-}
+

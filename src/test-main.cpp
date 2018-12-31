@@ -1,5 +1,5 @@
 #include "input.h"
-#include "logic`.h"
+#include "logic.h"
 #include "automat.h"
 #include "display.h"
 #include "staticerror.h"
@@ -8,6 +8,7 @@
 
 #include <curses.h>
 #include <unistd.h>
+#include <iostream>
 
 using namespace std;
 
@@ -35,11 +36,11 @@ int main(int argc, char **argv) {
     Display display;
     StaticError staticError;
     Output output;
-    Dishwasher dishwash{input, logic, automat, display, staticError, output};
+    Dishwasher dishwash({&input, &logic, &automat, &display, &staticError, &output});
     dishwash.run();
   }
   catch(exception &e) {
-    cerr << "main: " << e.what() << endl;
+    std::cerr << "main: " << e.what() << endl;
   }
   done();
   return 0;

@@ -3,20 +3,16 @@
 
 using namespace std;
 
-bool Output::shouldBeQueued(const Event &e) const noexcept {
-    switch(e.getType()) {
-    case EventType::MeasuredDoor:
-    case EventType::Actuate:
-        return true;
-    default:
-        return false;
-    }
+Output::Output() : Component() {
 }
 
-void Output::process(const Event &event) noexcept {
+Output::~Output() noexcept {
+}
+
+void Output::process(Event const &aEvent) noexcept {
 
 }
 
-void Output::process(Error error) noexcept {
+void Output::process(int32_t const aExpired) noexcept {
 
 }

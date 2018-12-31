@@ -23,15 +23,18 @@ class TimerManager final : public BanCopyMove  {
   static constexpr int32_t cMeasureShortestThreadSleepMaxMillis = 50; // Must work for 50 ms
 
   struct Timer final {
-    int64_t const start;  /// us
-    int64_t const length; /// us, realtime without dividing
-    int32_t const action;
+    int64_t start;  /// us
+    int64_t length; /// us, realtime without dividing
+    int32_t action;
 
-    /// -1 for beginning
+    /// cEmptyIndex for beginning
     int32_t prevIndex;
 
-    /// -1 for final
+    /// cEmptyIndex for final
     int32_t nextIndex;
+
+    Timer() : prevIndex(cEmptyIndex), nextIndex(cEmptyIndex) {
+    }
 
     Timer(int64_t const aStart, int64_t const aLength, int32_t aAction) : start(aStart), length(aLength), action(aAction), prevIndex(cEmptyIndex), nextIndex(cEmptyIndex) {
     }
@@ -100,15 +103,15 @@ public:
 
   void resume() noexcept;
 
-  int64_t now() noexcept;
+  int64_t now() const noexcept;
 
   void keepPattingWatchdog() noexcept;
 
   /// Creates an action timer from now on
   /// @param aLength planned delay in us
   /// @param aAction action as int to delay
-  bool schedule(int64_t const aLength, int32_t const aAction) noexcept {
-    return schedule(Timer(now(), aLength, aAction));
+  void schedule(int64_t const aLength, int32_t const aAction) {
+    schedule(Timer(now(), aLength, aAction));
   }
 
   /// May only be called if the actual timer expired, so there is something to return.
@@ -117,7 +120,7 @@ public:
   std::optional<int32_t> pop() noexcept;
 
 private:
-  bool schedule(Timer const &aTimer) noexcept;
+  void schedule(Timer const &aTimer);
 
   template <typename Chrono>
   std::optional<int32_t> measureShortestThreadSleep() noexcept {

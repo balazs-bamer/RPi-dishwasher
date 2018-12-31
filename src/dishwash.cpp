@@ -5,6 +5,8 @@ void signalHandler(int s) {
   Dishwasher::stop();
 }
 
+std::atomic<bool> Dishwasher::sKeepRunning;
+
 Dishwasher::Dishwasher(std::initializer_list<Component*> aComponents)
   : mComponents(aComponents) {
   sKeepRunning.store(true);
@@ -24,7 +26,7 @@ void Dishwasher::run() {
 // TODO log
   }
   if(startCount == mComponents.size()) {
-    while(keepRunning.load()) {
+    while(sKeepRunning.load()) {
       std::this_thread::sleep_for(std::chrono::seconds(1));
     }
   }

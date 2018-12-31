@@ -48,6 +48,7 @@ OnOffState Event::getOnOff() const noexcept {
   if(mType != EventType::MeasuredSalt &&
      mType != EventType::MeasuredSpray &&
      mType != EventType::MeasuredLeak &&
+     mType != EventType::DesiredSpray &&
      mType != EventType::DesiredCirc &&
      mType != EventType::DesiredResinWash &&
      mType != EventType::Pause) {
@@ -156,25 +157,31 @@ void Component::run() noexcept {
   std::mutex mutex;
   std::unique_lock<std::mutex> lock(mutex);
   while(mKeepRunning) {
-    std::optional<int64_t> nextTimeout = mTimerManager.getEarliestValidTimeoutLength();
-    if(mConditionVariable.wait_for(lock, std::chrono::microseconds(nextTimeout.value())) == std::cv_status::timeout) {
-      // TODO pat watchdog
-      mTimerManager.keepPattingWatchdog();
-      std::optional<int32_t> expiredAction = mTimerManager.pop();
-      while(expiredAction) {
-        process(expiredAction.value());
-        expiredAction = mTimerManager.pop();
-      }
-    }
-    else { // nothing to do
-    }
-    Event event;
-    while(mQueue.pop(event)) {
-      if(mErrorSoFar.load() == cNoError || event.getType() == EventType::Error) {
-        process(event);
+    try {
+      std::optional<int64_t> nextTimeout = mTimerManager.getEarliestValidTimeoutLength();
+      if(mConditionVariable.wait_for(lock, std::chrono::microseconds(nextTimeout.value())) == std::cv_status::timeout) {
+        // TODO pat watchdog
+        mTimerManager.keepPattingWatchdog();
+        std::optional<int32_t> expiredAction = mTimerManager.pop();
+        while(expiredAction) {
+          process(expiredAction.value());
+          expiredAction = mTimerManager.pop();
+        }
       }
       else { // nothing to do
       }
+      Event event;
+      while(mQueue.pop(event)) {
+        if(mErrorSoFar.load() == cNoError || event.getType() == EventType::Error) {
+          process(event);
+        }
+        else { // nothing to do
+        }
+      }
+    }
+    catch(std::exception &e) {
+      Log::i() << "Exception: " << e.what() << Log::end;
+      raise(Error::Programmer);
     }
   }
 }
@@ -182,13 +189,4 @@ void Component::run() noexcept {
 void Component::raise(Error const aError) noexcept {
   mErrorSoFar |= static_cast<int32_t>(aError);
   mDishwasher->send(this, Event(aError));
-}
-
-bool Component::ensure(bool const aCondition) noexcept {
-  if(aCondition) {
-    raise(Error::Programmer);
-  }
-  else { // nothing to do
-  }
-  return aCondition;
 }

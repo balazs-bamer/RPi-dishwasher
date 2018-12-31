@@ -6,6 +6,8 @@
 /** Manages water level, temperature, circulation and spray selector
  * based on measured values and desired values. */
 class Automat final : public Component {
+  enum class SprayChangeState : int32_t { Invalid = -1, Upper, Lower, Both };
+
   static constexpr int32_t cSprayChangeMaxMeasuredTimeCount          = 30;
   static constexpr int32_t cExpectedSprayChangeTimeCount             = 18;
   static constexpr int32_t cSprayChangeCycle                         =  6;
@@ -23,8 +25,6 @@ class Automat final : public Component {
 
   uint16_t         mWaterLevel = 0;
   uint16_t         mTemperature = 0;
-  uint16_t         mCircCurrent = 0;
-  uint16_t         mDrainCurrent = 0;
   OnOffState       mSprayContact = OnOffState::Invalid;
   /** Valid if sprayContact is on. Signs the previous state if it is off. */
   SprayChangeState mSprayPosition = SprayChangeState::Invalid;

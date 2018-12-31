@@ -22,7 +22,7 @@ void Logic::turnOffAll() noexcept {
   send(Event(EventType::DesiredCirc, OnOffState::Off));
   send(EventType::DesiredWaterLevel, 0);
   send(EventType::DesiredTemperature, 0);
-  send(SprayChangeState::Off);
+  send(Event(EventType::DesiredSpray, OnOffState::Off));
   send(Actuate::Detergent0);
   send(Actuate::Regenerate0);
   send(Actuate::Shutdown0);
@@ -170,7 +170,7 @@ void Logic::doWash(int32_t const aExpired) noexcept {
   }
   else if(aExpired == cTimerWashWash) {
     send(Event(EventType::DesiredCirc, OnOffState::Off));
-    send(Event(SprayChangeState::Off));
+    send(Event(EventType::DesiredSpray, OnOffState::Off));
     send(EventType::DesiredTemperature, 0);
     send(EventType::DesiredWaterLevel, 0);
     mWashWaterDrain = true;
@@ -188,7 +188,7 @@ void Logic::doWash(const Event &aEvent) noexcept {
       mWashWaterFill = false;
       send(EventType::DesiredTemperature, mTargetTemperature);
       send(Event(EventType::DesiredCirc, OnOffState::On));
-      send(Event(EventType::DesiredSpray, SprayChangeState::On));
+      send(Event(EventType::DesiredSpray, OnOffState::On));
       if(mNeedDetergent) {
         send(Actuate::Detergent1);
         mTimerManager.schedule(Config::cWashDetergentOpenTime, cTimerWashDetergent);

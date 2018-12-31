@@ -4,10 +4,6 @@
 #include "base.h"
 
 class StaticError final : public Component {
-public:
-  StaticError(Dishwasher &d) : Component(d) {}
-  virtual ~StaticError() noexcept {}
-
 protected:
   virtual bool shouldHaltOnError() const noexcept {
     return false;
