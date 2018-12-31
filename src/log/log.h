@@ -55,7 +55,7 @@ namespace nowtech {
     : base(0u)
     , fill(0u) {
     }
-    
+
     /// Constructor.
     constexpr LogFormat(uint8_t const aBase, uint8_t const aFill)
     : base(aBase)
@@ -236,7 +236,7 @@ namespace nowtech {
     LogSizeType getChunkSize() const noexcept {
       return mChunkSize;
     }
-   
+
     /// Only needed in implementations without an OS-supported task name and task ID exceeding uint32_t.
     /// This function does nothing.
     /// Registers the given name and an artificial ID in a local map.
@@ -267,7 +267,7 @@ namespace nowtech {
     /// @param log the Log instance to be passed as parameter to the function in the other parameter
     /// @param threadFunc the function to serve as the body of the new thread.
     virtual void createTransmitterThread(Log *aLog, void(* aThreadFunc)(void *)) noexcept = 0;
-      
+
     /// Joins the thread, if applicable to the OsInterface subclass. This des nothing.
     virtual void joinTransmitterThread() noexcept {
     };
@@ -363,7 +363,7 @@ namespace nowtech {
       , mBlocks(aBlocks) {
       mChunk[0] = *reinterpret_cast<char const*>(&aTaskId);
     }
-    
+
 /*Chunk(Chunk const &) = default;
     Chunk(Chunk &&) = default;
     Chunk& operator=(Chunk const &) = default;
@@ -766,6 +766,11 @@ private:
       else {
         append(aChunk, "-=unknown=-");
       }
+    }
+
+    template<>
+    void append(Chunk &aChunk, LogFormat& aFormat, char const * const aValue) noexcept {
+      append(aChunk, aValue);
     }
 
     void append(Chunk &aChunk, bool const aBool) noexcept {
