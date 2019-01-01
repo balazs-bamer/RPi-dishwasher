@@ -4,10 +4,10 @@
 	"automat.h"
 	"dishwash.h"
 
-1546252298 /home/balazs/munka/mosogatogep/prg/src/automat.h
+1546369782 /home/balazs/munka/mosogatogep/prg/src/automat.h
 	"base.h"
 
-1546278056 /home/balazs/munka/mosogatogep/prg/src/base.h
+1546374587 /home/balazs/munka/mosogatogep/prg/src/base.h
 	"dishwash-config.h"
 	"bancopymove.h"
 	"timer.h"
@@ -26,22 +26,22 @@
 	"base.h"
 	<vector>
 
-1546254707 /home/balazs/munka/mosogatogep/prg/src/input.h
+1546369826 /home/balazs/munka/mosogatogep/prg/src/input.h
 	"base.h"
 
-1546254432 /home/balazs/munka/mosogatogep/prg/src/staticerror.h
+1546369903 /home/balazs/munka/mosogatogep/prg/src/staticerror.h
 	"base.h"
 
-1546250509 /home/balazs/munka/mosogatogep/prg/src/logic.h
+1546369854 /home/balazs/munka/mosogatogep/prg/src/logic.h
 	"base.h"
 
-1546258174 /home/balazs/munka/mosogatogep/prg/src/display.h
+1546372935 /home/balazs/munka/mosogatogep/prg/src/display.h
 	"base.h"
 
-1546263151 /home/balazs/munka/mosogatogep/prg/src/output.h
+1546369906 /home/balazs/munka/mosogatogep/prg/src/output.h
 	"base.h"
 
-1546274675 source:/home/balazs/munka/mosogatogep/prg/src/base.cpp
+1546374247 source:/home/balazs/munka/mosogatogep/prg/src/base.cpp
 	"dishwash.h"
 	<mutex>
 
@@ -57,18 +57,20 @@
 	"staticerror.h"
 	"dishwash.h"
 
-1546257151 source:/home/balazs/munka/mosogatogep/prg/src/test-display.cpp
+1546374293 source:/home/balazs/munka/mosogatogep/prg/src/test-display.cpp
+	"display.h"
 	<curses.h>
 	<string.h>
-	"display.h"
+	<unistd.h>
+	<cctype>
 
-1546255429 source:/home/balazs/munka/mosogatogep/prg/src/test-input.cpp
+1546374751 source:/home/balazs/munka/mosogatogep/prg/src/test-input.cpp
 	<curses.h>
 	"input.h"
 	"dishwash.h"
 	<iostream>
 
-1546258420 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
+1546368294 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
 	"input.h"
 	"logic.h"
 	"automat.h"
@@ -76,9 +78,8 @@
 	"staticerror.h"
 	"output.h"
 	"dishwash.h"
-	<curses.h>
-	<unistd.h>
-	<iostream>
+	"logstdthreadostream.h"
+	<fstream>
 
 1546263103 source:/home/balazs/munka/mosogatogep/prg/src/test-output.cpp
 	"output.h"

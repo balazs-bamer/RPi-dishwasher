@@ -77,22 +77,30 @@ private:
   int32_t      mRemainingTime = 0;
   int32_t      mTimerFactor   = 1;
 
+  bool         mNeedsRefresh  = false;
+
 public:
   Display(); // TODO this should take a mutex for I2C access control
   virtual ~Display() noexcept;
 
 protected:
-  virtual bool shouldHaltOnError() const noexcept {
+  virtual char const * getTaskName() const noexcept override {
+    return "display";
+  }
+
+  virtual bool shouldHaltOnError() const noexcept override {
     return false;
   }
 
-  virtual bool shouldBeQueued(Event const &aEvent) const noexcept {
+  virtual bool shouldBeQueued(Event const &aEvent) const noexcept override {
     return true;
   }
 
 private:
+  virtual void refresh() noexcept override;
+
   // We keep this here to let the two implementations share it.
-  virtual void process(Event const &aEvent) noexcept {
+  virtual void process(Event const &aEvent) noexcept override {
     EventType type = aEvent.getType();
     if(type == EventType::MeasuredDoor) {
       mDoor = aEvent.getDoor();
@@ -145,9 +153,11 @@ private:
     }
     else { // nothing to do
     }
+    mNeedsRefresh = true;
   }
 
-  virtual void process(int32_t const aExpired) noexcept {}
+  virtual void process(int32_t const aExpired) noexcept override {
+  }
 };
 
 #endif // DISHWASHER_DISPLAY_INCLUDED

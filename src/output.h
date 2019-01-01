@@ -13,11 +13,15 @@ public:
   virtual ~Output() noexcept;
 
 protected:
-  virtual bool shouldHaltOnError() const noexcept {
+  virtual char const * getTaskName() const noexcept override {
+    return "output ";
+  }
+
+  virtual bool shouldHaltOnError() const noexcept override {
     return false;
   }
 
-  virtual bool shouldBeQueued(Event const &aEvent) const noexcept {
+  virtual bool shouldBeQueued(Event const &aEvent) const noexcept override {
     switch(aEvent.getType()) {
     case EventType::MeasuredDoor:
     case EventType::Actuate:
@@ -28,9 +32,9 @@ protected:
   }
 
 private:
-  virtual void process(Event const &aEvent) noexcept;
+  virtual void process(Event const &aEvent) noexcept override;
 
-  virtual void process(int32_t const aExpired) noexcept;
+  virtual void process(int32_t const aExpired) noexcept override;
 };
 
 #endif // DISHWASHER_OUTPUT_INCLUDED

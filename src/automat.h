@@ -35,11 +35,15 @@ class Automat final : public Component {
   int64_t          mMeasureStart;
 
 protected:
-  virtual bool shouldHaltOnError() const noexcept {
+  virtual char const * getTaskName() const noexcept override {
+    return "automat";
+  }
+
+  virtual bool shouldHaltOnError() const noexcept override {
     return true;
   }
 
-  virtual bool shouldBeQueued(const Event &e) const noexcept;
+  virtual bool shouldBeQueued(const Event &e) const noexcept override;
 
 private:
   void doResinWashSwitch(OnOffState const aDesired) noexcept;
@@ -60,9 +64,9 @@ private:
    * because circulation will schrink the water level in the sump.
    * When the door is open, all the events are processed as usual, the timer remains on.
    * However, Output turns off all the pysical signals. Automatics will catch on if they return. */
-  virtual void process(Event const &event) noexcept;
+  virtual void process(Event const &event) noexcept override;
 
-  virtual void process(int32_t const aTimerEvent) noexcept;
+  virtual void process(int32_t const aTimerEvent) noexcept override;
 };
 
 #endif // DISHWASHER_AUTOMAT_INCLUDED

@@ -40,7 +40,8 @@ enum class Error : int32_t {     // raised in
   NoHeat          =  1 << 16u, // Automat
   Overheat        =  1 << 17u, // StaticError
   InvalidTemp     =  1 << 18u, // Input
-  SpraySelect     =  1 << 19u  // Automat
+  SpraySelect     =  1 << 19u, // Automat
+  Quit            =  1 << 20u, // Input (test only)
 };
 
 enum class Actuate : int32_t { // comes from
@@ -84,7 +85,7 @@ enum class EventType : int32_t {
   MachineState,         // Logic                         MachineState
   RemainingTime,        // Logic only on program start   int32_t
   TimeFactorChanged,    // Dishwasher                    int32_t
-  Pause                 // Input                         OnOffState
+  KeyPressed            // Output (only test)            int32_t
 };
 
 class Event final {
@@ -116,7 +117,7 @@ public:
                               "MeasuredLeak", "MeasuredCrcCurr", "MeasuredDrnCurr", "MeasuredWtrLvl",
                               "MeasuredTemp", "Error", "DesiredSpray", "DesiredCirc", "DesiredWaterLvl",
                               "DesiredTemp", "DesiredResinWsh", "Actuate", "Program", "MachineState",
-                              "RemainingTime", "TimeFactChanged", "Pause" };
+                              "RemainingTime", "TimeFactChanged", "KeyPressed" };
 
 private:
   EventType mType = EventType::Invalid;
@@ -250,6 +251,8 @@ public:
   void queueEvent(Event const &) noexcept;
 
 protected:
+  virtual char const * getTaskName() const noexcept = 0;
+
   /// Returns true if the thread should exit on error, false otherwise.
   virtual bool shouldHaltOnError() const noexcept = 0;
 
@@ -264,6 +267,10 @@ protected:
 
   /// By the time we get here, all other components are initialized and ready to start.
   void run() noexcept;
+
+  /// Used only in Display to update LCD or Curses.
+  virtual void refresh() noexcept {
+  }
 
   /// Processes an interesting message.
   virtual void process(Event const &) noexcept = 0;

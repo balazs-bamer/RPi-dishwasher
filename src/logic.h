@@ -68,11 +68,15 @@ class Logic final : public Component {
   int64_t mTargetTime;               // us
 
 protected:
-  virtual bool shouldHaltOnError() const noexcept {
+  virtual char const * getTaskName() const noexcept override {
+    return "logic  ";
+  }
+
+  virtual bool shouldHaltOnError() const noexcept override {
     return true;
   }
 
-  virtual bool shouldBeQueued(Event const &aEvent) const noexcept;
+  virtual bool shouldBeQueued(Event const &aEvent) const noexcept override;
 
 private:
   void turnOffAll() noexcept;
@@ -118,9 +122,9 @@ private:
 
   /** When the door is open, all the events except of errors and door events are discarded.
    * Timer is also paused. Output turns off all physical outputs as well, so nothing will be missed. */
-  virtual void process(Event const &aEvent) noexcept;
+  virtual void process(Event const &aEvent) noexcept override;
 
-  virtual void process(int32_t const aExpired) noexcept;
+  virtual void process(int32_t const aExpired) noexcept override;
 };
 
 #endif // DISHWASHER_LOGIC_INCLUDED

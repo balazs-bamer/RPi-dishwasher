@@ -16,9 +16,9 @@
 					<Add directory="src/log" />
 				</Compiler>
 				<Linker>
-					<Add library="/usr/lib/libEASTL.a" />
 					<Add library="/usr/lib/libcurses.so" />
 					<Add library="/usr/lib/libpthread.so" />
+					<Add library="/usr/lib/libatomic.so" />
 				</Linker>
 			</Target>
 		</Build>

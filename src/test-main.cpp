@@ -5,31 +5,22 @@
 #include "staticerror.h"
 #include "output.h"
 #include "dishwash.h"
+#include "logstdthreadostream.h"
 
-#include <curses.h>
-#include <unistd.h>
-#include <iostream>
-
-using namespace std;
-
-void init() noexcept {
-  setlocale(LC_ALL, "");
-  initscr();
-  cbreak();
-  nodelay(stdscr, true);
-  noecho();
-  nonl();
-  intrflush(stdscr, FALSE);
-  keypad(stdscr, TRUE);
-}
-
-void done() noexcept {
-  endwin();
-}
+#include <fstream>
 
 int main(int argc, char **argv) {
-  init();
+  char defaultLogFilename[] = "dishwasher.log";
   try {
+    nowtech::LogConfig logConfig;
+    logConfig.taskRepresentation = nowtech::LogConfig::TaskRepresentation::cName;
+    logConfig.refreshPeriod      = 200u;
+    std::ofstream logFile(argc == 1 ? defaultLogFilename : argv[1]);
+    nowtech::LogStdThreadOstream osInterface(logFile, logConfig);
+    nowtech::Log log(osInterface, logConfig);
+    Log::registerApp(nowtech::LogApp::cSystem, "system");
+    Log::registerCurrentTask("main   ");
+
     Input input;
     Logic logic;
     Automat automat;
@@ -39,9 +30,8 @@ int main(int argc, char **argv) {
     Dishwasher dishwash({&input, &logic, &automat, &display, &staticError, &output});
     dishwash.run();
   }
-  catch(exception &e) {
-    std::cerr << "main: " << e.what() << endl;
+  catch(std::exception &e) {
+    Log::i() << "exception: " << e.what() << Log::end;
   }
-  done();
   return 0;
 }

@@ -18,8 +18,7 @@ Event::Event(EventType const aType, OnOffState const aArg) noexcept : mType(aTyp
      aType != EventType::MeasuredSpray &&
      aType != EventType::MeasuredLeak &&
      aType != EventType::DesiredCirc &&
-     aType != EventType::DesiredResinWash &&
-     aType != EventType::Pause) {
+     aType != EventType::DesiredResinWash) {
     mType = EventType::Error;
     mError = Error::Programmer;
   }
@@ -35,7 +34,8 @@ Event::Event(EventType const aType, int32_t const aArg) noexcept : mType(aType),
      aType != EventType::DesiredWaterLevel &&
      aType != EventType::DesiredTemperature &&
      aType != EventType::RemainingTime &&
-     aType != EventType::TimeFactorChanged) {
+     aType != EventType::TimeFactorChanged &&
+     mType != EventType::KeyPressed) {
     mType = EventType::Error;
     mError = Error::Programmer;
   }
@@ -50,8 +50,7 @@ OnOffState Event::getOnOff() const noexcept {
      mType != EventType::MeasuredLeak &&
      mType != EventType::DesiredSpray &&
      mType != EventType::DesiredCirc &&
-     mType != EventType::DesiredResinWash &&
-     mType != EventType::Pause) {
+     mType != EventType::DesiredResinWash) {
     ret = OnOffState::Invalid;
   }
   else {
@@ -69,7 +68,8 @@ int32_t Event::getIntValue() const noexcept {
      mType != EventType::DesiredWaterLevel &&
      mType != EventType::DesiredTemperature &&
      mType != EventType::RemainingTime &&
-     mType != EventType::TimeFactorChanged) {
+     mType != EventType::TimeFactorChanged &&
+     mType != EventType::KeyPressed) {
     ret = cInvalid;
   }
   else {
@@ -87,8 +87,7 @@ char const * Event::getValueConstStr() const noexcept {
           mType == EventType::MeasuredSpray ||
           mType == EventType::MeasuredLeak ||
           mType == EventType::DesiredCirc ||
-          mType == EventType::DesiredResinWash ||
-          mType == EventType::Pause) {
+          mType == EventType::DesiredResinWash) {
     result = cStrOnOffState[mIntValue + 1];
   }
   else if(mType == EventType::Error) {
@@ -154,6 +153,9 @@ void Component::send(Event const &aEvent) noexcept {
 }
 
 void Component::run() noexcept {
+  Log::registerCurrentTask(getTaskName());
+  Log::i() << "task started.";
+
   std::mutex mutex;
   std::unique_lock<std::mutex> lock(mutex);
   while(mKeepRunning) {
@@ -178,6 +180,7 @@ void Component::run() noexcept {
         else { // nothing to do
         }
       }
+      refresh();
     }
     catch(std::exception &e) {
       Log::i() << "Exception: " << e.what() << Log::end;
