@@ -23,11 +23,13 @@ bool Input::shouldBeQueued(Event const &aEvent) const noexcept {
   }
 }
 
+static constexpr int32_t cKeyQuit = 'Q';
+
 void Input::process(Event const &aEvent) noexcept {
   EventType type = aEvent.getType();
   if(type == EventType::KeyPressed) {
     int32_t keyPressed = aEvent.getIntValue();
-    if(keyPressed == 'Q') {
+    if(keyPressed == cKeyQuit) {
       raise(Error::Quit);
     }
     else { // nothing to do

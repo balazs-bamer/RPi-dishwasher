@@ -7,7 +7,7 @@
 1546369782 /home/balazs/munka/mosogatogep/prg/src/automat.h
 	"base.h"
 
-1546374587 /home/balazs/munka/mosogatogep/prg/src/base.h
+1546458341 /home/balazs/munka/mosogatogep/prg/src/base.h
 	"dishwash-config.h"
 	"bancopymove.h"
 	"timer.h"
@@ -41,11 +41,11 @@
 1546369906 /home/balazs/munka/mosogatogep/prg/src/output.h
 	"base.h"
 
-1546374247 source:/home/balazs/munka/mosogatogep/prg/src/base.cpp
+1546458394 source:/home/balazs/munka/mosogatogep/prg/src/base.cpp
 	"dishwash.h"
 	<mutex>
 
-1546278432 source:/home/balazs/munka/mosogatogep/prg/src/dishwash.cpp
+1546458516 source:/home/balazs/munka/mosogatogep/prg/src/dishwash.cpp
 	"dishwash.h"
 	<signal.h>
 
@@ -70,7 +70,7 @@
 	"dishwash.h"
 	<iostream>
 
-1546368294 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
+1546458582 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
 	"input.h"
 	"logic.h"
 	"automat.h"
@@ -112,7 +112,7 @@
 	"log.h"
 	<atomic>
 
-1545586704 source:/home/balazs/munka/mosogatogep/prg/src/log/logstdthreadostream.cpp
+1546452557 source:/home/balazs/munka/mosogatogep/prg/src/log/logstdthreadostream.cpp
 	"logstdthreadostream.h"
 
 1545586704 /home/balazs/munka/mosogatogep/prg/src/log/logstdthreadostream.h
@@ -133,7 +133,7 @@
 
 1545223283 /home/balazs/munka/mosogatogep/prg/src/bancopymove.h
 
-1546278475 source:/home/balazs/munka/mosogatogep/prg/src/timer.cpp
+1546456677 source:/home/balazs/munka/mosogatogep/prg/src/timer.cpp
 	"timer.h"
 	<cmath>
 	<algorithm>

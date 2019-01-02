@@ -29,8 +29,9 @@ std::optional<int64_t> TimerManager::getEarliestValidTimeoutLength() const noexc
     }
     currentIndex = mTimers[currentIndex].nextIndex;
   }
-  if(!result || result < mWatchdogStart + mWatchdogLength - current) {
-    result = mWatchdogStart + mWatchdogLength - current;
+  int64_t watchdogTimeout = mWatchdogStart + mWatchdogLength - current;
+  if(watchdogTimeout > 0 && (!result || result < watchdogTimeout)) {
+    result = watchdogTimeout;
   }
   else { // nothing to do
   }

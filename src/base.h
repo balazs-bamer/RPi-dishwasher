@@ -212,7 +212,7 @@ private:
   boost::lockfree::queue<Event> mQueue;
 
   /// A MachineState::Shutdown fill set it false if needed
-  bool mKeepRunning;
+  std::atomic<bool> mKeepRunning = true;
 
   std::condition_variable mConditionVariable;
 
@@ -227,7 +227,7 @@ protected:
   /** This and derived constructors may throw exception if some library or hardware component fails.
   This and derived constructors will initialize all the needed libraries and hardware. */
   Component() : mQueue(cMessageQueueSize), mTimerManager(cTimerCount, cWatchdogPatInterval) {
-    mKeepRunning = mQueue.is_lock_free() && mTimerManager;
+    mKeepRunning.store(mQueue.is_lock_free() && mTimerManager);
   }
 
 public:
@@ -244,6 +244,7 @@ public:
   }
 
   void stop() {
+    mKeepRunning.store(false);
     mThread.join();
   }
 

@@ -158,28 +158,32 @@ void Component::run() noexcept {
 
   std::mutex mutex;
   std::unique_lock<std::mutex> lock(mutex);
-  while(mKeepRunning) {
+  while(mKeepRunning.load()) {
     try {
       std::optional<int64_t> nextTimeout = mTimerManager.getEarliestValidTimeoutLength();
-      if(mConditionVariable.wait_for(lock, std::chrono::microseconds(nextTimeout.value())) == std::cv_status::timeout) {
-        // TODO pat watchdog
-        mTimerManager.keepPattingWatchdog();
-        std::optional<int32_t> expiredAction = mTimerManager.pop();
-        while(expiredAction) {
-          process(expiredAction.value());
-          expiredAction = mTimerManager.pop();
+      if(nextTimeout) { // should normally succeed, but needed for debugging
+        if(mConditionVariable.wait_for(lock, std::chrono::microseconds(nextTimeout.value())) == std::cv_status::timeout) {
+          std::optional<int32_t> expiredAction = mTimerManager.pop();
+          while(expiredAction) {
+            process(expiredAction.value());
+            expiredAction = mTimerManager.pop();
+          }
+        }
+        else { // nothing to do
+        }
+        Event event;
+        while(mQueue.pop(event)) {
+          if(mErrorSoFar.load() == cNoError || event.getType() == EventType::Error) {
+            process(event);
+          }
+          else { // nothing to do
+          }
         }
       }
       else { // nothing to do
       }
-      Event event;
-      while(mQueue.pop(event)) {
-        if(mErrorSoFar.load() == cNoError || event.getType() == EventType::Error) {
-          process(event);
-        }
-        else { // nothing to do
-        }
-      }
+      // TODO pat watchdog
+      mTimerManager.keepPattingWatchdog();
       refresh();
     }
     catch(std::exception &e) {
@@ -187,6 +191,7 @@ void Component::run() noexcept {
       raise(Error::Programmer);
     }
   }
+  Log::i() << "task finished.";
 }
 
 void Component::raise(Error const aError) noexcept {

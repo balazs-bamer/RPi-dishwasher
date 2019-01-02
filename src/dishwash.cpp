@@ -16,14 +16,9 @@ Dishwasher::Dishwasher(std::initializer_list<Component*> aComponents)
 
 void Dishwasher::run() {
   uint32_t startCount = 0;
-  try {
-    for(auto i : mComponents) {
-      i->start(this);
-      ++startCount;
-    }
-  }
-  catch(std::exception &e) {
-// TODO log
+  for(auto i : mComponents) {
+    i->start(this);
+    ++startCount;
   }
   if(startCount == mComponents.size()) {
     while(sKeepRunning.load()) {
@@ -33,6 +28,7 @@ void Dishwasher::run() {
   while(startCount > 0) {
     mComponents[--startCount]->stop();
   }
+  std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
 void Dishwasher::send(Component *aOrigin, Event const &aEvent) noexcept {

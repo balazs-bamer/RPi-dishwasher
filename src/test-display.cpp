@@ -12,7 +12,7 @@ constexpr char Display::stateNames[][6];
 Display::Display() : Component() {
   ::setlocale(LC_ALL, "");
   ::initscr();
-  ::cbreak();
+  ::raw();
   ::nodelay(stdscr, true);
   ::noecho();
   ::nonl();

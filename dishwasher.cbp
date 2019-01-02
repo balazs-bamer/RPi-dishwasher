@@ -16,9 +16,7 @@
 					<Add directory="src/log" />
 				</Compiler>
 				<Linker>
-					<Add library="/usr/lib/libcurses.so" />
-					<Add library="/usr/lib/libpthread.so" />
-					<Add library="/usr/lib/libatomic.so" />
+					<Add option="-lcurses -lpthread -latomic" />
 				</Linker>
 			</Target>
 		</Build>
