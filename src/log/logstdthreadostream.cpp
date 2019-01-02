@@ -27,7 +27,7 @@ void nowtech::LogStdThreadOstream::FreeRtosQueue::send(char const * const aChunk
   bool success;
   do {
     char *payload;
-    bool success = mFreeList.pop(payload);
+    success = mFreeList.pop(payload);
     if(success) {
       std::copy(aChunkStart, aChunkStart + mBlockSize, payload);
       mQueue.bounded_push(payload); // this should always succeed here
@@ -65,7 +65,7 @@ void nowtech::LogStdThreadOstream::FreeRtosTimer::run() noexcept {
       if(mConditionVariable.wait_for(mLock, std::chrono::milliseconds(mTimeout)) == std::cv_status::timeout) {
         mLambda();
         mAlarmed.store(false);
-      }  
+      }
       else { // nothing to do
       }
     }
