@@ -22,7 +22,7 @@
 1546250509 /home/balazs/munka/mosogatogep/prg/src/dishwash-config.h
 	<cstdint>
 
-1546250509 /home/balazs/munka/mosogatogep/prg/src/dishwash.h
+1546523247 /home/balazs/munka/mosogatogep/prg/src/dishwash.h
 	"base.h"
 	<vector>
 
@@ -41,7 +41,7 @@
 1546369906 /home/balazs/munka/mosogatogep/prg/src/output.h
 	"base.h"
 
-1546458394 source:/home/balazs/munka/mosogatogep/prg/src/base.cpp
+1546522652 source:/home/balazs/munka/mosogatogep/prg/src/base.cpp
 	"dishwash.h"
 	<mutex>
 
@@ -57,20 +57,20 @@
 	"staticerror.h"
 	"dishwash.h"
 
-1546374293 source:/home/balazs/munka/mosogatogep/prg/src/test-display.cpp
+1546458704 source:/home/balazs/munka/mosogatogep/prg/src/test-display.cpp
 	"display.h"
 	<curses.h>
 	<string.h>
 	<unistd.h>
 	<cctype>
 
-1546374751 source:/home/balazs/munka/mosogatogep/prg/src/test-input.cpp
+1546458780 source:/home/balazs/munka/mosogatogep/prg/src/test-input.cpp
 	<curses.h>
 	"input.h"
 	"dishwash.h"
 	<iostream>
 
-1546458582 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
+1546522994 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
 	"input.h"
 	"logic.h"
 	"automat.h"
@@ -92,11 +92,11 @@
 	<chrono>
 	<optional>
 
-1545586704 source:/home/balazs/munka/mosogatogep/prg/src/log/log.cpp
+1546522613 source:/home/balazs/munka/mosogatogep/prg/src/log/log.cpp
 	"log.h"
 	"logutil.h"
 
-1546277530 /home/balazs/munka/mosogatogep/prg/src/log/log.h
+1546510616 /home/balazs/munka/mosogatogep/prg/src/log/log.h
 	"BanCopyMove.h"
 	<cstdint>
 	<type_traits>
@@ -112,8 +112,9 @@
 	"log.h"
 	<atomic>
 
-1546452557 source:/home/balazs/munka/mosogatogep/prg/src/log/logstdthreadostream.cpp
+1546512879 source:/home/balazs/munka/mosogatogep/prg/src/log/logstdthreadostream.cpp
 	"logstdthreadostream.h"
+	<iostream>
 
 1545586704 /home/balazs/munka/mosogatogep/prg/src/log/logstdthreadostream.h
 	"log.h"

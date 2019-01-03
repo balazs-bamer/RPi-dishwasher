@@ -154,7 +154,7 @@ void Component::send(Event const &aEvent) noexcept {
 
 void Component::run() noexcept {
   Log::registerCurrentTask(getTaskName());
-  Log::i() << "task started.";
+  Log::i() << "task started." << Log::end;
 
   std::mutex mutex;
   std::unique_lock<std::mutex> lock(mutex);
@@ -191,7 +191,8 @@ void Component::run() noexcept {
       raise(Error::Programmer);
     }
   }
-  Log::i() << "task finished.";
+  Log::i() << "task finished." << Log::end;
+  std::this_thread::sleep_for(std::chrono::microseconds(cSleepFinish));
 }
 
 void Component::raise(Error const aError) noexcept {

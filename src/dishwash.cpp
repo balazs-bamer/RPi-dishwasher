@@ -22,13 +22,13 @@ void Dishwasher::run() {
   }
   if(startCount == mComponents.size()) {
     while(sKeepRunning.load()) {
-      std::this_thread::sleep_for(std::chrono::seconds(1));
+      std::this_thread::sleep_for(std::chrono::microseconds(cSleepWait));
     }
   }
   while(startCount > 0) {
     mComponents[--startCount]->stop();
   }
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(std::chrono::microseconds(cSleepFinish));
 }
 
 void Dishwasher::send(Component *aOrigin, Event const &aEvent) noexcept {

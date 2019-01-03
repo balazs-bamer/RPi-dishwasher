@@ -203,6 +203,7 @@ protected:
 
 private:
   static constexpr int32_t cWatchdogPatInterval =    100000;  // 0.1s
+  static constexpr int32_t cSleepFinish         =   1000000;
   static constexpr int32_t cMessageQueueSize    =       128;
   static constexpr int32_t cNoError             =         0;
   static constexpr int32_t cTimerCount          =        20;
