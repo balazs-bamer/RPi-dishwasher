@@ -99,6 +99,8 @@ char const * const nowtech::LogStdThreadOstream::getCurrentThreadName() noexcept
   return result;
 }
 
+#include<iostream>
+
 uint32_t nowtech::LogStdThreadOstream::getCurrentThreadId() noexcept {
   uint32_t result;
   auto found = mTaskNamesIds.find(std::this_thread::get_id());

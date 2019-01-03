@@ -115,6 +115,10 @@ namespace nowtech {
     static constexpr LogFormat cX6 = LogFormat(16, 6);
     static constexpr LogFormat cX8 = LogFormat(16, 8);
 
+    /// If true, task registration will be sent to the output in the form
+    /// in the form -=- Registered task: taskname (1) -=-
+    bool allowRegistrationLog = true;
+
     /// If true, use of Log << something << to << log << Log::end; calls will
     /// be allowed from registered threads (but NOT from ISR).
     /// This requires pre-allocating 256 * chunkSize bytes of memory, but lets
