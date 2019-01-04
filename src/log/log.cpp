@@ -73,6 +73,7 @@ nowtech::Log::Log(LogOsInterface &aOsInterface, LogConfig const &aConfig) noexce
   , mConfig(aConfig)
   , mChunkSize(aConfig.chunkSize) {
   sInstance = this;
+  mKeepRunning.store(true);
   mOsInterface.createTransmitterThread(this, logTransmitterThreadFunction);
   if(aConfig.allowShiftChainingCalls) {
     mShiftChainingCallBuffers = new char[(std::numeric_limits<TaskIdType>::max() + static_cast<LogSizeType>(1u)) * mChunkSize];

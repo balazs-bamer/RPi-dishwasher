@@ -65,7 +65,7 @@ void nowtech::LogStdThreadOstream::FreeRtosTimer::run() noexcept {
       if(mConditionVariable.wait_for(mLock, std::chrono::milliseconds(mTimeout)) == std::cv_status::timeout) {
         mLambda();
         mAlarmed.store(false);
-      }
+      }  
       else { // nothing to do
       }
     }
