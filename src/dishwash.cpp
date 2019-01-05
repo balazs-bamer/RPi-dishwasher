@@ -32,6 +32,12 @@ void Dishwasher::run() {
 }
 
 void Dishwasher::send(Component *aOrigin, Event const &aEvent) noexcept {
+  if(aEvent.getType() == EventType::KeyPressed) {
+    Log::i() << nowtech::LogApp::cEvent << aEvent.getTypeConstStr() << ':' << aEvent.getValueConstStr() << " (" << static_cast<char>(aEvent.getIntValue()) << ')' << Log::end;
+  }
+  else {
+    Log::i() << nowtech::LogApp::cEvent << aEvent.getTypeConstStr() << ':' << aEvent.getValueConstStr() << " (" << aEvent.getIntValue() << ')' << Log::end;
+  }
   for(auto i : mComponents) {
     if(i != aOrigin) {
       i->queueEvent(aEvent);

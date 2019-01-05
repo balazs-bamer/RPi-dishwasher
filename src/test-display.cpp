@@ -1,4 +1,5 @@
 #include "display.h"
+#include "dishwash.h"
 
 #include <curses.h>
 #include <string.h>
@@ -25,9 +26,13 @@ Display::~Display() noexcept {
 }
 
 void Display::refresh() noexcept {
-  int keyPressed = ::getch();
-  if(keyPressed != ERR && isalnum(keyPressed)) {
+  static constexpr int32_t cCtrlC = 3;
+  int32_t keyPressed = ::getch();
+  if(isalnum(keyPressed)) {
     send(EventType::KeyPressed, static_cast<int32_t>(keyPressed));
+  }
+  else if(keyPressed == cCtrlC) {
+    Dishwasher::stop();
   }
   else { // nothing to do
   }

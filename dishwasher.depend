@@ -7,7 +7,7 @@
 1546369782 /home/balazs/munka/mosogatogep/prg/src/automat.h
 	"base.h"
 
-1546458341 /home/balazs/munka/mosogatogep/prg/src/base.h
+1546719367 /home/balazs/munka/mosogatogep/prg/src/base.h
 	"dishwash-config.h"
 	"bancopymove.h"
 	"timer.h"
@@ -22,7 +22,7 @@
 1546250509 /home/balazs/munka/mosogatogep/prg/src/dishwash-config.h
 	<cstdint>
 
-1546523247 /home/balazs/munka/mosogatogep/prg/src/dishwash.h
+1546719375 /home/balazs/munka/mosogatogep/prg/src/dishwash.h
 	"base.h"
 	<vector>
 
@@ -41,11 +41,11 @@
 1546369906 /home/balazs/munka/mosogatogep/prg/src/output.h
 	"base.h"
 
-1546522652 source:/home/balazs/munka/mosogatogep/prg/src/base.cpp
+1546523415 source:/home/balazs/munka/mosogatogep/prg/src/base.cpp
 	"dishwash.h"
 	<mutex>
 
-1546458516 source:/home/balazs/munka/mosogatogep/prg/src/dishwash.cpp
+1546719183 source:/home/balazs/munka/mosogatogep/prg/src/dishwash.cpp
 	"dishwash.h"
 	<signal.h>
 
@@ -57,8 +57,9 @@
 	"staticerror.h"
 	"dishwash.h"
 
-1546458704 source:/home/balazs/munka/mosogatogep/prg/src/test-display.cpp
+1546718158 source:/home/balazs/munka/mosogatogep/prg/src/test-display.cpp
 	"display.h"
+	"dishwash.h"
 	<curses.h>
 	<string.h>
 	<unistd.h>
@@ -70,7 +71,7 @@
 	"dishwash.h"
 	<iostream>
 
-1546522994 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
+1546719120 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
 	"input.h"
 	"logic.h"
 	"automat.h"
@@ -92,11 +93,11 @@
 	<chrono>
 	<optional>
 
-1546522613 source:/home/balazs/munka/mosogatogep/prg/src/log/log.cpp
+1546609433 source:/home/balazs/munka/mosogatogep/prg/src/log/log.cpp
 	"log.h"
 	"logutil.h"
 
-1546510616 /home/balazs/munka/mosogatogep/prg/src/log/log.h
+1546717868 /home/balazs/munka/mosogatogep/prg/src/log/log.h
 	"BanCopyMove.h"
 	<cstdint>
 	<type_traits>
@@ -104,7 +105,6 @@
 	<limits>
 	<cmath>
 	<map>
-	<iostream>
 
 1545586704 /home/balazs/munka/mosogatogep/prg/src/log/BanCopyMove.h
 
@@ -112,11 +112,10 @@
 	"log.h"
 	<atomic>
 
-1546512879 source:/home/balazs/munka/mosogatogep/prg/src/log/logstdthreadostream.cpp
+1546708807 source:/home/balazs/munka/mosogatogep/prg/src/log/logstdthreadostream.cpp
 	"logstdthreadostream.h"
-	<iostream>
 
-1545586704 /home/balazs/munka/mosogatogep/prg/src/log/logstdthreadostream.h
+1546708825 /home/balazs/munka/mosogatogep/prg/src/log/logstdthreadostream.h
 	"log.h"
 	<mutex>
 	<atomic>

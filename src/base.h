@@ -118,6 +118,7 @@ public:
                               "MeasuredTemp", "Error", "DesiredSpray", "DesiredCirc", "DesiredWaterLvl",
                               "DesiredTemp", "DesiredResinWsh", "Actuate", "Program", "MachineState",
                               "RemainingTime", "TimeFactChanged", "KeyPressed" };
+  static constexpr char cStrInt[] = "";
 
 private:
   EventType mType = EventType::Invalid;
@@ -203,7 +204,7 @@ protected:
 
 private:
   static constexpr int32_t cWatchdogPatInterval =    100000;  // 0.1s
-  static constexpr int32_t cSleepFinish         =   1000000;
+  static constexpr int32_t cSleepFinish         =    100000;
   static constexpr int32_t cMessageQueueSize    =       128;
   static constexpr int32_t cNoError             =         0;
   static constexpr int32_t cTimerCount          =        20;

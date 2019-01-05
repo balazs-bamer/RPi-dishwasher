@@ -18,7 +18,9 @@ int main(int argc, char **argv) {
     std::ofstream logFile(argc == 1 ? defaultLogFilename : argv[1]);
     nowtech::LogStdThreadOstream osInterface(logFile, logConfig);
     nowtech::Log log(osInterface, logConfig);
-    Log::registerApp(nowtech::LogApp::cSystem, "system");
+    Log::registerApp(nowtech::LogApp::cSystem,   "system  ");
+    //Log::registerApp(nowtech::LogApp::cWatchdog, "watchdog");
+    Log::registerApp(nowtech::LogApp::cEvent,    "event   ");
     Log::registerCurrentTask("main   ");
 
     Input input;

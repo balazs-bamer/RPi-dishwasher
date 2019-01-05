@@ -9,7 +9,7 @@ extern std::atomic<bool> keepRunning;
 class Dishwasher final : public BanCopyMove {
   // us
   static constexpr int32_t cSleepWait   = 1000000;
-  static constexpr int32_t cSleepFinish = 3000000;
+  static constexpr int32_t cSleepFinish = 2000000;
 
   static std::atomic<bool> sKeepRunning;
   std::vector<Component*> mComponents;
@@ -22,6 +22,7 @@ public:
   }
 
   static void stop() noexcept {
+    Log::i() << "Exiting..." << Log::end;
     sKeepRunning.store(false);
   }
 
