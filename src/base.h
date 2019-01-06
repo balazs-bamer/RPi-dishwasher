@@ -40,8 +40,7 @@ enum class Error : int32_t {     // raised in
   NoHeat          =  1 << 16u, // Automat
   Overheat        =  1 << 17u, // StaticError
   InvalidTemp     =  1 << 18u, // Input
-  SpraySelect     =  1 << 19u, // Automat
-  Quit            =  1 << 20u, // Input (test only)
+  SpraySelect     =  1 << 19u  // Automat
 };
 
 enum class Actuate : int32_t { // comes from
@@ -98,9 +97,23 @@ public:
   static constexpr char cStrSprayChangeState[][cStringSize] = { "Invalid", "Upper", "Lower", "Both" };
   static constexpr char cStrOnOffState[][cStringSize] = { "Invalid", "Off", "On" };
 
-  static constexpr char cStrActuate[][cStringSize] = { "Invalid", "Shutdown0", "Shutdown1", "Heat0", "Heat1",
-                              "Drain0", "Drain1", "Fill0", "Fill1", "Regenerate0", "Regenerate1", "Detergent0",
-                              "Detergent1", "Circ0", "Circ1", "Spray0", "Spray1" };
+  static constexpr char cStrActuate[][cStringSize] = { "Invalid",
+                                                       "Shutdown   0",
+                                                       "Shutdown   1",
+                                                       "Heat       0",
+                                                       "Heat       1",
+                                                       "Drain      0",
+                                                       "Drain      1",
+                                                       "Fill       0",
+                                                       "Fill       1",
+                                                       "Regenerate 0",
+                                                       "Regenerate 1",
+                                                       "Detergent  0",
+                                                       "Detergent  1",
+                                                       "Circulate  0",
+                                                       "Circulate  1",
+                                                       "Spray      0",
+                                                       "Spray      1" };
 
   static constexpr char cStrProgram[][cStringSize] = { "Invalid", "None", "Stop", "Drain", "Rinse", "Fast",
                               "FastDry", "Middle", "All", "Hot", "Intensive", "Cook", "Count" };
