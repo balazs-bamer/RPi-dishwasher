@@ -1,5 +1,6 @@
 #include "display.h"
 #include "dishwash.h"
+#include "test-keyboard.h"
 
 #include <curses.h>
 #include <string.h>
@@ -23,8 +24,8 @@ struct Location {
 
 Location const cStartSensorTexts        = {  3,  4 };
 Location const cStartSensorValues       = { 17,  4 };
-Location const cStartActuators          = {  3,  4 };
-Location const cStartStateValues        = { 19, 24 };
+Location const cStartActuators          = {  3, 14 };
+Location const cStartStateValues        = { 16, 28 };
 Location const cStartErrorValues        = { 28,  4 };
 Location const cStartProgramTexts       = { 48,  4 };
 Location const cStartProgramButtons     = { 58,  4 };
@@ -48,8 +49,8 @@ LocationText const cTitleTimerFactors = { 45, 16, "Speedup factors" };
 LocationText const cTitleFaults       = { 60,  1, "Fault injection" };
 LocationText const cStatesProgram     = {  3, 28, "Program:" };
 LocationText const cStatesState       = {  3, 29, "State:" };
-LocationText const cStatesRemaining   = {  3, 30, "Remaining minutes:" };
-LocationText const cStatesTimerFactor = {  3, 31, "Speedup factor:" };
+LocationText const cStatesRemaining   = {  3, 30, "Mins left:" };
+LocationText const cStatesTimerFactor = {  3, 31, "Speedup:" };
 
 char const cErrorMessages[][20] = {
                                   "I2C communication",
@@ -113,11 +114,10 @@ char const cSensorNames[cSensorCount][20] = {
                                   "Leak:"
                                 };
 
-char const cButtonsProgram[]     = " sdrfymahic";
-char const cButtonsFault[]       = "QWERTYUIOP{}ASDFGHJKL:\"ZXCV";
-char const cButtonsTimerFactor[] = "1234567890";
-
-int32_t const cTimerFactors[] = { 1, 2, 3, 5, 8, 13, 22, 36, 60, 100 }; // available via buttons from 1-9, 0
+char const cButtonsProgram[cButtonsProgramCount + 1]         = " sdrfymahic";
+char const cButtonsFault[cButtonsFaultCount + 1]             = "QWERTYUIOP{}ASDFGHJKL:\"ZXCV";
+char const cButtonsTimerFactor[cButtonsTimerFactorCount + 1] = "1234567890";
+int32_t const cTimerFactors[cButtonsTimerFactorCount]        = { 1, 2, 3, 5, 8, 13, 22, 36, 60, 100 }; // available via buttons from 1-9, 0
 
 static void writeStaticContent() {
   if(getmaxy(stdscr) < cMinRows || getmaxx(stdscr) < cMinColumns) {
@@ -170,6 +170,7 @@ Display::Display() : Component() {
   ::intrflush(stdscr, FALSE);
   ::keypad(stdscr, TRUE);
   ::writeStaticContent();
+  refresh();
 }
 
 Display::~Display() noexcept {
@@ -188,8 +189,29 @@ void Display::refresh() noexcept {
   else { // nothing to do
   }
   if(mNeedsRefresh) { // Will be enough to display the remaining time as well, because there are frequent measurements.
-    // mvprintw(y, x, string);/* Move to (y, x) then print string     */
-    // mvaddstr(y, x, string)
+    mvaddstr(cStartSensorValues.y + 6, cStartSensorValues.x, Event::cStrDoorState[static_cast<int32_t>(mDoor) + 1]);
+    mvaddstr(cStartSensorValues.y + 3, cStartSensorValues.x, Event::cStrOnOffState[static_cast<int32_t>(mSalt) + 1]);
+    mvaddstr(cStartSensorValues.y + 5, cStartSensorValues.x, Event::cStrOnOffState[static_cast<int32_t>(mSprayContact) + 1]);
+    mvaddstr(cStartSensorValues.y + 7, cStartSensorValues.x, Event::cStrOnOffState[static_cast<int32_t>(mLeak) + 1]);
+    mvprintw(cStartSensorValues.y + 4, cStartSensorValues.x, "%3d", mCircCurrent);
+    mvprintw(cStartSensorValues.y + 1, cStartSensorValues.x, "%3d", mDrainCurrent);
+    mvprintw(cStartSensorValues.y + 2, cStartSensorValues.x, "%3d", mWaterLevel);
+    mvprintw(cStartSensorValues.y, cStartSensorValues.x, "%3d", mTemperature);
+    int32_t errorSoFar = mErrorSoFar.load();
+    for(int32_t i = 0; i < 31; ++i) {
+      if(errorSoFar & (1 << i)) {
+        mvaddstr(cStartErrorValues.y + i, cStartErrorValues.x, cErrorMessages[i]);
+      }
+      else { // nothing to do
+      }
+    }
+    for(uint8_t i = 0; i < 8; ++i) {
+      mvaddstr(cStartActuators.y + i, cStartActuators.x, Event::cStrActuate[i * 2 + 1 + (mActuate & 1 << i ? 1 : 0)]);
+    }
+    mvaddstr(cStartStateValues.y, cStartStateValues.x, Event::cStrProgram[static_cast<int32_t>(mProgram) + 1]);
+    mvaddstr(cStartStateValues.y + 1, cStartStateValues.x, Event::cStrMachineState[static_cast<int32_t>(mState) + 1]);
+    mvprintw(cStartStateValues.y + 2, cStartStateValues.x, "%3d", mRemainingTime);
+    mvprintw(cStartStateValues.y + 3, cStartStateValues.x, "%3d", mTimerFactor);
     ::refresh();
     mNeedsRefresh = false; // TODO handle countdown
   }

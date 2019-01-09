@@ -25,6 +25,8 @@ void Dishwasher::run() {
       std::this_thread::sleep_for(std::chrono::microseconds(cSleepWait));
     }
   }
+  else { // nothing to do
+  }
   while(startCount > 0) {
     mComponents[--startCount]->stop();
   }

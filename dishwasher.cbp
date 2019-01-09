@@ -54,6 +54,7 @@
 		<Unit filename="src/staticerror.h" />
 		<Unit filename="src/test-display.cpp" />
 		<Unit filename="src/test-input.cpp" />
+		<Unit filename="src/test-keyboard.h" />
 		<Unit filename="src/test-main.cpp" />
 		<Unit filename="src/test-output.cpp" />
 		<Unit filename="src/timer.cpp" />

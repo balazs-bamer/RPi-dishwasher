@@ -2,11 +2,7 @@
 
 #include "input.h"
 #include "dishwash.h"
-
-// TODO
-#include <iostream>
-
-using namespace std;
+#include "test-keyboard.h"
 
 Input::Input() : Component() {
 }
@@ -23,14 +19,18 @@ bool Input::shouldBeQueued(Event const &aEvent) const noexcept {
   }
 }
 
-static constexpr int32_t cKeyQuit = 'Q';
+extern char const cButtonsProgram[];
+extern char const cButtonsFault[];
+extern char const cButtonsTimerFactor[];
+extern int32_t const cTimerFactors[];
 
 void Input::process(Event const &aEvent) noexcept {
   EventType type = aEvent.getType();
   if(type == EventType::KeyPressed) {
     int32_t keyPressed = aEvent.getIntValue();
-    if(keyPressed == cKeyQuit) {
-      raise(Error::Quit);
+    auto found = std::find(cButtonsProgram, cButtonsProgram + sizeof(cButtonsProgram), keyPressed);
+    if(found < cButtonsProgram + sizeof(cButtonsProgram)) {
+      send(Event(static_cast<Program>(found - cButtonsProgram)));
     }
     else { // nothing to do
     }
