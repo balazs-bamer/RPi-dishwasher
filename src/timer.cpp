@@ -2,15 +2,20 @@
 #include <cmath>
 #include <algorithm>
 
+TimerManager::ClockToUse TimerManager::sClockToUse = TimerManager::ClockToUse::Invalid;
 double TimerManager::sTimeDividor;
 
 TimerManager::TimerManager(int32_t const aMaxLength, int32_t const aWatchdogLength) noexcept
-  : mWatchdogLength(aWatchdogLength)
-  , mMaxLength(aMaxLength){
-  mTimers = new Timer[aMaxLength];
-  std::optional<int32_t> highResolutionDelay = measureShortestThreadSleep<std::chrono::high_resolution_clock>();
-  std::optional<int32_t> steadyDelay = measureShortestThreadSleep<std::chrono::steady_clock>();
-  mClockToUse = (highResolutionDelay && highResolutionDelay.value() < steadyDelay.value() ? ClockToUse::HighResolution : ClockToUse::Steady);
+  : mTimers(new Timer[aMaxLength])
+  , mWatchdogLength(aWatchdogLength)
+  , mMaxLength(aMaxLength) {
+  if(sClockToUse == ClockToUse::Invalid) {
+    std::optional<int32_t> highResolutionDelay = measureShortestThreadSleep<std::chrono::high_resolution_clock>();
+    std::optional<int32_t> steadyDelay = measureShortestThreadSleep<std::chrono::steady_clock>();
+    sClockToUse = (highResolutionDelay && highResolutionDelay.value() < steadyDelay.value() ? ClockToUse::HighResolution : ClockToUse::Steady);
+  }
+  else { // nothing to do
+  }
   sTimeDividor = cRealtime;
   mWatchdogStart = now();
 }
@@ -68,7 +73,7 @@ void TimerManager::resume() noexcept {
 
 int64_t TimerManager::now() const noexcept {
   int64_t result;
-  if(mClockToUse == ClockToUse::HighResolution) {
+  if(sClockToUse == ClockToUse::HighResolution) {
     result = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
   }
   else {

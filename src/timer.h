@@ -11,8 +11,9 @@
 /// The constructor will choose the most precise steady clock to use.
 class TimerManager final : public BanCopyMove  {
   enum class ClockToUse : int32_t {
-    HighResolution = 0,
-    Steady         = 1
+    Invalid        = -1,
+    HighResolution =  0,
+    Steady         =  1
   };
 
   static constexpr int32_t cEmptyIndex                          = -1;
@@ -48,7 +49,7 @@ class TimerManager final : public BanCopyMove  {
     }
   } *mTimers;
 
-  ClockToUse mClockToUse = ClockToUse::Steady;
+  static ClockToUse sClockToUse;
 
   int64_t mWatchdogStart;
   int64_t mWatchdogLength;
