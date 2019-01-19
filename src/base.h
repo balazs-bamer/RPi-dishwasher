@@ -115,22 +115,59 @@ public:
                                                        "Spray      0",
                                                        "Spray      1" };
 
-  static constexpr char cStrProgram[][cStringSize] = { "Invalid", "None", "Stop", "Drain", "Rinse", "Fast",
-                              "FastDry", "Middle", "All", "Hot", "Intensive", "Cook", "Count" };
+  static constexpr char cStrProgram[][cStringSize] = { "Invalid  ",
+                                                       "None     ",
+                                                       "Stop     ",
+                                                       "Drain    ",
+                                                       "Rinse    ",
+                                                       "Fast     ",
+                                                       "FastDry  ",
+                                                       "Middle   ",
+                                                       "All      ",
+                                                       "Hot      ",
+                                                       "Intensive",
+                                                       "Cook     ",
+                                                       "Count    " };
 
-  static constexpr char cStrMachineState[][cStringSize] = { "Invalid", "Idle", "Drain", "Resin", "PreWash", "Wash",
-                              "Rinse1", "Rinse2", "Rinse3", "Dry", "Shutdown", "Count" };
+  static constexpr char cStrMachineState[][cStringSize] = { "Invalid ",
+                                                            "Idle    ",
+                                                            "Drain   ",
+                                                            "Resin   ",
+                                                            "PreWash ",
+                                                            "Wash    ",
+                                                            "Rinse1  ",
+                                                            "Rinse2  ",
+                                                            "Rinse3  ",
+                                                            "Dry     ",
+                                                            "Shutdown",
+                                                            "Count   " };
 
   static constexpr char cStrError[][cStringSize] = { "Invalid", "None", "I2C", "Programmer", "Queue", "NoWater",
                               "OverFill", "NoDrain", "Leak", "NoSignal", "InvalidSignal", "UnstableSignal",
                               "CircOverload", "CircConnector", "CircRelayStuck", "DrainOverload", "DrainConnector",
                               "DrainRelayStuck", "NoHeat", "Overheat", "InvalidTemp", "SpraySelect" };
 
-  static constexpr char cStrEventType[][cStringSize] = { "Invalid", "MeasuredDoor", "MeasuredSalt", "MeasuredSpray",
-                              "MeasuredLeak", "MeasuredCrcCurr", "MeasuredDrnCurr", "MeasuredWtrLvl",
-                              "MeasuredTemp", "Error", "DesiredSpray", "DesiredCirc", "DesiredWaterLvl",
-                              "DesiredTemp", "DesiredResinWsh", "Actuate", "Program", "MachineState",
-                              "RemainingTime", "TimeFactChanged", "KeyPressed" };
+  static constexpr char cStrEventType[][cStringSize] = { "Invalid        ",
+                                                         "MeasuredDoor   ",
+                                                         "MeasuredSalt   ",
+                                                         "MeasuredSpray  ",
+                                                         "MeasuredLeak   ",
+                                                         "MeasuredCrcCurr",
+                                                         "MeasuredDrnCurr",
+                                                         "MeasuredWtrLvl ",
+                                                         "MeasuredTemp   ",
+                                                         "Error          ",
+                                                         "DesiredSpray   ",
+                                                         "DesiredCirc    ",
+                                                         "DesiredWaterLvl",
+                                                         "DesiredTemp    ",
+                                                         "DesiredResinWsh",
+                                                         "Actuate        ",
+                                                         "Program        ",
+                                                         "MachineState   ",
+                                                         "RemainingTime  ",
+                                                         "TimeFactChanged",
+                                                         "KeyPressed     " };
   static constexpr char cStrInt[] = "";
 
 private:
@@ -296,6 +333,9 @@ protected:
 
   /// Handles it here and sends to other components.
   void raise(Error const aError) noexcept;
+
+  /// Handles it here and sends to other components.
+  void raise(Error const aError, char const * const aReason) noexcept;
 
   void ensure(bool const aCondition) {
     if(aCondition) {

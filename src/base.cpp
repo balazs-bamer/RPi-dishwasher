@@ -22,6 +22,7 @@ Event::Event(EventType const aType, OnOffState const aArg) noexcept : mType(aTyp
      aType != EventType::DesiredResinWash) {
     mType = EventType::Error;
     mError = Error::Programmer;
+    Log::i(nowtech::LogApp::cError) << "Event not OnOffState" << Log::end;
   }
   else { // nothing to do
   }
@@ -39,6 +40,7 @@ Event::Event(EventType const aType, int32_t const aArg) noexcept : mType(aType),
      mType != EventType::KeyPressed) {
     mType = EventType::Error;
     mError = Error::Programmer;
+    Log::i(nowtech::LogApp::cError) << "Event not int" << Log::end;
   }
   else { // nothing to do
   }
@@ -167,7 +169,7 @@ void Component::send(Event const &aEvent) noexcept {
 
 void Component::run() noexcept {
   Log::registerCurrentTask(getTaskName());
-  Log::i() << nowtech::LogApp::cSystem << "task started." << Log::end;
+  Log::i(nowtech::LogApp::cSystem) << "task started." << Log::end;
 
   std::mutex mutex;
   std::unique_lock<std::mutex> lock(mutex);
@@ -200,15 +202,21 @@ void Component::run() noexcept {
       refresh();
     }
     catch(std::exception &e) {
-      Log::i() << "Exception: " << e.what() << Log::end;
-      raise(Error::Programmer);
+      Log::i(nowtech::LogApp::cSystem) << "Exception: " << e.what() << Log::end;
+      raise(Error::Programmer, "exception");
     }
   }
-  Log::i() << nowtech::LogApp::cSystem<< "task finished." << Log::end;
+  Log::i(nowtech::LogApp::cSystem) << "task finished." << Log::end;
   std::this_thread::sleep_for(std::chrono::microseconds(cSleepFinish));
 }
 
 void Component::raise(Error const aError) noexcept {
+  mErrorSoFar |= static_cast<int32_t>(aError);
+  mDishwasher->send(this, Event(aError));
+}
+
+void Component::raise(Error const aError, char const * const aReason) noexcept {
+  Log::i(nowtech::LogApp::cError) << aReason << Log::end;
   mErrorSoFar |= static_cast<int32_t>(aError);
   mDishwasher->send(this, Event(aError));
 }

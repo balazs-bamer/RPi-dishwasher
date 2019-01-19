@@ -22,7 +22,7 @@ public:
   }
 
   static void stop() noexcept {
-    Log::i() << "Exiting..." << Log::end;
+    Log::i(nowtech::LogApp::cSystem) << "Exiting..." << Log::end;
     sKeepRunning.store(false);
   }
 

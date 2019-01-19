@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
     dishwash.run();
   }
   catch(std::exception &e) {
-    Log::i() << "exception: " << e.what() << Log::end;
+    Log::i(nowtech::LogApp::cSystem) << "exception: " << e.what() << Log::end;
   }
   return 0;
 }

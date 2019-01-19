@@ -289,7 +289,7 @@ void Automat::process(int32_t const aTimerEvent) noexcept {
   }
   else if(aTimerEvent == cTimerDecelerateSearchSprayChangePosition) {
     if(mMeasuredTimeCount < cExpectedSprayChangeTimeCount) {
-      raise(Error::SpraySelect);
+      raise(Error::SpraySelect, "spray change timeout");
     }
     else { // nothing to do
     }

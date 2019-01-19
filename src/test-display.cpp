@@ -53,55 +53,55 @@ LocationText const cStatesRemaining   = {  3, 30, "Mins left:" };
 LocationText const cStatesTimerFactor = {  3, 31, "Speedup:" };
 
 char const cErrorMessages[][20] = {
-                                  "I2C communication",
-                                  "Programmer",
-                                  "Queue full",
-                                  "No water",
-                                  "Overfill",
-                                  "Drain fail",
-                                  "Leakage",
-                                  "No pressure signal",
+                                  "I2C communication  ",
+                                  "Programmer         ",
+                                  "Queue full         ",
+                                  "No water           ",
+                                  "Overfill           ",
+                                  "Drain fail         ",
+                                  "Leakage            ",
+                                  "No pressure signal ",
                                   "Bad pressure signal",
-                                  "Unstable pressure",
-                                  "Circulate overload",
-                                  "Circulate connect",
-                                  "Circulate stuck",
-                                  "Drain overload",
-                                  "Drain connection",
-                                  "Drain stuck",
-                                  "No heating",
-                                  "Overheat",
-                                  "Bad temperature",
-                                  "Spray selector"
+                                  "Unstable pressure  ",
+                                  "Circulate overload ",
+                                  "Circulate connect  ",
+                                  "Circulate stuck    ",
+                                  "Drain overload     ",
+                                  "Drain connection   ",
+                                  "Drain stuck        ",
+                                  "No heating         ",
+                                  "Overheat           ",
+                                  "Bad temperature    ",
+                                  "Spray selector     "
                                 };
 char const cFaultNames[cFaultCount][40] = {
-                                    "Door sensor stuck at 0",            // Q
-                                    "Door sensor stuck at 1",            // W
-                                    "Salt sensor stuck at 0",            // E
-                                    "Salt sensor stuck at 1",            // R
-                                    "Spray sensor stuck at 0",           // T
-                                    "Spray sensor stuck at 1",           // Y
+                                    "Door sensor stuck at 0           ", // Q
+                                    "Door sensor stuck at 1           ", // W
+                                    "Salt sensor stuck at 0           ", // E
+                                    "Salt sensor stuck at 1           ", // R
+                                    "Spray sensor stuck at 0          ", // T
+                                    "Spray sensor stuck at 1          ", // Y
                                     "Circulate current sensor stuck at", // U
-                                    "Drain current sensor stuck at",     // I
-                                    "Water level sensor stuck at",       // O
-                                    "Temperature sensor stuck at",       // P
-                                    "I2C communication failure",         // {
-                                    "Shutdown actuator stuck at 0",      // }
-                                    "Shutdown actuator stuck at 1",      // A
-                                    "Heat actuator stuck at 0",          // S
-                                    "Heat actuator stuck at 1",          // D
-                                    "Drain actuator stuck at 0",         // F
-                                    "Drain actuator stuck at 1",         // G
-                                    "Fill actuator stuck at 0",          // H
-                                    "Fill actuator stuck at 1",          // J
-                                    "Regenerate actuator stuck at 0",    // K
-                                    "Regenerate actuator stuck at 1",    // L
-                                    "Detergent actuator stuck at 0",     // :
-                                    "Detergent actuator stuck at 1",     // "
-                                    "Circulate actuator stuck at 0",     // Z
-                                    "Circulate actuator stuck at 1",     // X
-                                    "Spray actuator stuck at 0",         // C
-                                    "Spray actuator stuck at 1"          // V
+                                    "Drain current sensor stuck at    ", // I
+                                    "Water level sensor stuck at      ", // O
+                                    "Temperature sensor stuck at      ", // P
+                                    "I2C communication failure        ", // {
+                                    "Shutdown actuator stuck at 0     ", // }
+                                    "Shutdown actuator stuck at 1     ", // A
+                                    "Heat actuator stuck at 0         ", // S
+                                    "Heat actuator stuck at 1         ", // D
+                                    "Drain actuator stuck at 0        ", // F
+                                    "Drain actuator stuck at 1        ", // G
+                                    "Fill actuator stuck at 0         ", // H
+                                    "Fill actuator stuck at 1         ", // J
+                                    "Regenerate actuator stuck at 0   ", // K
+                                    "Regenerate actuator stuck at 1   ", // L
+                                    "Detergent actuator stuck at 0    ", // :
+                                    "Detergent actuator stuck at 1    ", // "
+                                    "Circulate actuator stuck at 0    ", // Z
+                                    "Circulate actuator stuck at 1    ", // X
+                                    "Spray actuator stuck at 0        ", // C
+                                    "Spray actuator stuck at 1        "  // V
                                   };
 char const cSensorNames[cSensorCount][20] = {
                                   "Temperature:",
@@ -114,7 +114,7 @@ char const cSensorNames[cSensorCount][20] = {
                                   "Leak:"
                                 };
 
-char const cButtonsProgram[cButtonsProgramCount + 1]         = " sdrfymahic";
+char const cButtonsProgram[cButtonsProgramCount + 1]         = "  sdrfymahi";
 char const cButtonsFault[cButtonsFaultCount + 1]             = "QWERTYUIOP{}ASDFGHJKL:\"ZXCV";
 char const cButtonsTimerFactor[cButtonsTimerFactorCount + 1] = "1234567890";
 int32_t const cTimerFactors[cButtonsTimerFactorCount]        = { 1, 2, 3, 5, 8, 13, 22, 36, 60, 100 }; // available via buttons from 1-9, 0

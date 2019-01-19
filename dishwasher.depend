@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1546250509 source:/home/balazs/munka/mosogatogep/prg/src/automat.cpp
+1547929899 source:/home/balazs/munka/mosogatogep/prg/src/automat.cpp
 	"dishwash-config.h"
 	"automat.h"
 	"dishwash.h"
@@ -7,7 +7,7 @@
 1546369782 /home/balazs/munka/mosogatogep/prg/src/automat.h
 	"base.h"
 
-1547064710 /home/balazs/munka/mosogatogep/prg/src/base.h
+1547929839 /home/balazs/munka/mosogatogep/prg/src/base.h
 	"dishwash-config.h"
 	"bancopymove.h"
 	"timer.h"
@@ -22,7 +22,7 @@
 1546250509 /home/balazs/munka/mosogatogep/prg/src/dishwash-config.h
 	<cstdint>
 
-1546719375 /home/balazs/munka/mosogatogep/prg/src/dishwash.h
+1547924867 /home/balazs/munka/mosogatogep/prg/src/dishwash.h
 	"base.h"
 	<vector>
 
@@ -41,11 +41,11 @@
 1546369906 /home/balazs/munka/mosogatogep/prg/src/output.h
 	"base.h"
 
-1546719323 source:/home/balazs/munka/mosogatogep/prg/src/base.cpp
+1547929999 source:/home/balazs/munka/mosogatogep/prg/src/base.cpp
 	"dishwash.h"
 	<mutex>
 
-1547064495 source:/home/balazs/munka/mosogatogep/prg/src/dishwash.cpp
+1547925783 source:/home/balazs/munka/mosogatogep/prg/src/dishwash.cpp
 	"dishwash.h"
 	<signal.h>
 
@@ -57,7 +57,7 @@
 	"staticerror.h"
 	"dishwash.h"
 
-1547065670 source:/home/balazs/munka/mosogatogep/prg/src/test-display.cpp
+1547924607 source:/home/balazs/munka/mosogatogep/prg/src/test-display.cpp
 	"display.h"
 	"dishwash.h"
 	"test-keyboard.h"
@@ -73,7 +73,7 @@
 	"dishwash.h"
 	"test-keyboard.h"
 
-1546719120 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
+1547924875 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
 	"input.h"
 	"logic.h"
 	"automat.h"
@@ -88,18 +88,18 @@
 	"output.h"
 	"dishwash.h"
 
-1546277780 /home/balazs/munka/mosogatogep/prg/src/timer.h
+1547930592 /home/balazs/munka/mosogatogep/prg/src/timer.h
 	"bancopymove.h"
 	<array>
 	<thread>
 	<chrono>
 	<optional>
 
-1546609433 source:/home/balazs/munka/mosogatogep/prg/src/log/log.cpp
+1547035723 source:/home/balazs/munka/mosogatogep/prg/src/log/log.cpp
 	"log.h"
 	"logutil.h"
 
-1546717868 /home/balazs/munka/mosogatogep/prg/src/log/log.h
+1547929445 /home/balazs/munka/mosogatogep/prg/src/log/log.h
 	"BanCopyMove.h"
 	<cstdint>
 	<type_traits>
@@ -135,7 +135,7 @@
 
 1545223283 /home/balazs/munka/mosogatogep/prg/src/bancopymove.h
 
-1546456677 source:/home/balazs/munka/mosogatogep/prg/src/timer.cpp
+1547930464 source:/home/balazs/munka/mosogatogep/prg/src/timer.cpp
 	"timer.h"
 	<cmath>
 	<algorithm>
