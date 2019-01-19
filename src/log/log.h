@@ -74,10 +74,13 @@ namespace nowtech {
   /// if the log is invoked like Log::send(nowtech::LogApp::cSystem, "stuff to log")
   /// If registration is omitted, the above call will do nothing.
   /// Regural calls like Log::send("stuff to log") will always have effect.
+  /// User code must not use the cInvalid value.
   enum class LogApp : uint8_t {
+    cInvalid,
     cSystem,
     cWatchdog,
-    cEvent
+    cEvent,
+    cError
   };
 
   /// Configuration struct with default values for general usage.
@@ -121,8 +124,13 @@ namespace nowtech {
     /// If true, use of Log << something << to << log << Log::end; calls will
     /// be allowed from registered threads (but NOT from ISR).
     /// This requires pre-allocating 256 * chunkSize bytes of memory, but lets
-    /// reduce the stack sizes dramatically.
+    /// reduce the stack sizes dramatically in contrast to the variadic template calls.
     bool allowShiftChainingCalls = true;
+
+    /// If false, the variadic template calls (send... and sendNoHeader...) will be placed,
+    /// but return immediately without doing anything at all. This is useful to remind
+    /// the developer working with limited stack to use the shift chain calls.
+    bool allowVariadicTemplatesWork = true;
 
     /// If true, logging will work from ISR.
     bool logFromIsr = false;
@@ -435,7 +443,7 @@ namespace nowtech {
 
   /// Dummy type to use in << chain as end marker.
   enum class LogShiftChainMarker : uint8_t {
-    cEnd = 0u
+    cEnd      = 0u
   };
 
   class LogShiftChainHelper final {
@@ -602,17 +610,27 @@ namespace nowtech {
       return sInstance->mRegisteredApps.find(aApp) != sInstance->mRegisteredApps.end();
     }
 
-    static Log& i() noexcept {
-      return *sInstance;
-    }
-
     /// Transmitter thread implementation.
     void transmitterThreadFunction() noexcept;
 
-    /// Starts a << operator chain with the specified argument
+    /// Starts a << operator chain with no argument
+    /// Prefer using this starter instead of directly accessing the Log object,
+    /// because this way less templates will be instantiated.
+    static LogShiftChainHelper i() noexcept;
+
+    /// Starts a << operator chain with the specified app
+    static LogShiftChainHelper i(LogApp const aApp) noexcept;
+
+    /// Starts a << operator chain with no argument, without printing header.
+    static LogShiftChainHelper n() noexcept;
+
+    /// Starts a << operator chain with the specified app, without printing header.
+    static LogShiftChainHelper n(LogApp const aApp) noexcept;
+
+    /// Starts a << operator chain with the specified argument.
     template<typename ArgumentType>
     LogShiftChainHelper operator<<(ArgumentType const aValue) noexcept {
-      if(mShiftChainingCallBuffers) {
+      if(mShiftChainingCallBuffers != nullptr) {
         TaskIdType taskId = getCurrentTaskId();
         Chunk appender = startSend(mShiftChainingCallBuffers + taskId * mChunkSize, taskId);
         if(appender.isValid()) {
@@ -640,10 +658,14 @@ namespace nowtech {
     /// If aApp is registered, calls the normal send to process the arguments
     template<typename... Args>
     static void send(LogApp aApp, Args... args) noexcept {
-      char chunk[sInstance->mChunkSize];
-      Chunk appender = sInstance->startSend(chunk, Chunk::cInvalidTaskId, aApp);
-      if(appender.isValid()) {
-        sInstance->doSend(appender, args...);
+      if(sInstance->mConfig.allowVariadicTemplatesWork) {
+        char chunk[sInstance->mChunkSize];
+        Chunk appender = sInstance->startSend(chunk, Chunk::cInvalidTaskId, aApp);
+        if(appender.isValid()) {
+          sInstance->doSend(appender, args...);
+        }
+        else { // nothing to do
+        }
       }
       else { // nothing to do
       }
@@ -670,10 +692,14 @@ namespace nowtech {
     /// automatically in the end.
     template<typename... Args>
     static void send(Args... args) noexcept {
-      char chunk[sInstance->mChunkSize];
-      Chunk appender = sInstance->startSend(chunk, Chunk::cInvalidTaskId);
-      if(appender.isValid()) {
-        sInstance->doSend(appender, args...);
+      if(sInstance->mConfig.allowVariadicTemplatesWork) {
+        char chunk[sInstance->mChunkSize];
+        Chunk appender = sInstance->startSend(chunk, Chunk::cInvalidTaskId);
+        if(appender.isValid()) {
+          sInstance->doSend(appender, args...);
+        }
+        else { // nothing to do
+        }
       }
       else { // nothing to do
       }
@@ -682,10 +708,14 @@ namespace nowtech {
     /// Similar to send but does not emit any preconfigured header.
     template<typename... Args>
     static void sendNoHeader(LogApp aApp, Args... args) noexcept {
-      char chunk[sInstance->mChunkSize];
-      Chunk appender = sInstance->startSendNoHeader(chunk, Chunk::cInvalidTaskId, aApp);
-      if(appender.isValid()) {
-        sInstance->doSend(appender, args...);
+      if(sInstance->mConfig.allowVariadicTemplatesWork) {
+        char chunk[sInstance->mChunkSize];
+        Chunk appender = sInstance->startSendNoHeader(chunk, Chunk::cInvalidTaskId, aApp);
+        if(appender.isValid()) {
+          sInstance->doSend(appender, args...);
+        }
+        else { // nothing to do
+        }
       }
       else { // nothing to do
       }
@@ -694,10 +724,14 @@ namespace nowtech {
     /// Similar to send but does not emit any preconfigured header.
     template<typename... Args>
     static void sendNoHeader(Args... args) noexcept {
-      char chunk[sInstance->mChunkSize];
-      Chunk appender = sInstance->startSendNoHeader(chunk, Chunk::cInvalidTaskId);
-      if(appender.isValid()) {
-        sInstance->doSend(appender, args...);
+      if(sInstance->mConfig.allowVariadicTemplatesWork) {
+        char chunk[sInstance->mChunkSize];
+        Chunk appender = sInstance->startSendNoHeader(chunk, Chunk::cInvalidTaskId);
+        if(appender.isValid()) {
+          sInstance->doSend(appender, args...);
+        }
+        else { // nothing to do
+        }
       }
       else { // nothing to do
       }
