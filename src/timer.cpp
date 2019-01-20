@@ -1,9 +1,9 @@
 #include "timer.h"
+#include "log.h"
 #include <cmath>
 #include <algorithm>
 
 TimerManager::ClockToUse TimerManager::sClockToUse = TimerManager::ClockToUse::Invalid;
-double TimerManager::sTimeDividor;
 
 TimerManager::TimerManager(int32_t const aMaxLength, int32_t const aWatchdogLength) noexcept
   : mTimers(new Timer[aMaxLength])
@@ -16,7 +16,7 @@ TimerManager::TimerManager(int32_t const aMaxLength, int32_t const aWatchdogLeng
   }
   else { // nothing to do
   }
-  sTimeDividor = cRealtime;
+  mTimeDividor = cRealtime;
   mWatchdogStart = now();
 }
 
@@ -45,7 +45,8 @@ std::optional<int64_t> TimerManager::getEarliestValidTimeoutLength() const noexc
 
 void TimerManager::setTimeDividor(double const aTimeDividor) noexcept {
   if(aTimeDividor >= cRealtime) {
-    sTimeDividor = aTimeDividor;
+    Log::i(nowtech::LogApp::cSystem) << "Timer factor set to " << aTimeDividor << Log::end;
+    mTimeDividor = aTimeDividor;
     std::sort(mTimers, mTimers + mLength);
     mStartIndex = 0;
     mEndIndex = mLength - 1;
@@ -65,7 +66,7 @@ void TimerManager::resume() noexcept {
     for(int32_t i = 0; i < mLength; ++i) {
       mTimers[i].start += shift;
     }
-    setTimeDividor(sTimeDividor);
+    setTimeDividor(mTimeDividor);
   }
   else { // nothing to do
   }
@@ -120,17 +121,20 @@ std::optional<int32_t> TimerManager::pop() noexcept {
 }
 
 void TimerManager::schedule(Timer const &aTimer) {
-  mTimers[mLength] = aTimer;
-  if(mLength == 0) {
-    mStartIndex = mEndIndex = 0;
-  }
-  else if(mLength == mMaxLength) {
+  if(mLength == mMaxLength) {
     throw std::out_of_range("no timers left");
   }
   else {
-    mTimers[mEndIndex].nextIndex = mLength;
-    mTimers[mLength].prevIndex = mEndIndex;
-    mEndIndex = mLength;
+    mTimers[mLength] = aTimer;
+    mTimers[mLength].manager = this;
+    if(mLength == 0) {
+      mStartIndex = mEndIndex = 0;
+    }
+    else {
+      mTimers[mEndIndex].nextIndex = mLength;
+      mTimers[mLength].prevIndex = mEndIndex;
+      mEndIndex = mLength;
+    }
+    ++mLength;
   }
-  ++mLength;
 }

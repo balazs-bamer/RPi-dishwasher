@@ -335,7 +335,10 @@ protected:
   void raise(Error const aError) noexcept;
 
   /// Handles it here and sends to other components.
-  void raise(Error const aError, char const * const aReason) noexcept;
+  void raise(Error const aError, char const * const aReason) noexcept {
+    Log::i(nowtech::LogApp::cError) << aReason << Log::end;
+    raise(aError);
+  }
 
   void ensure(bool const aCondition) {
     if(aCondition) {

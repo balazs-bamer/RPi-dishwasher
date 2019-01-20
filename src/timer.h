@@ -27,6 +27,7 @@ class TimerManager final : public BanCopyMove  {
     int64_t start;  /// us
     int64_t length; /// us, realtime without dividing
     int32_t action;
+    TimerManager *manager;
 
     /// cEmptyIndex for beginning
     int32_t prevIndex;
@@ -41,7 +42,7 @@ class TimerManager final : public BanCopyMove  {
     }
 
     double getExpiration() const noexcept {
-      return start + length / sTimeDividor;
+      return start + length / manager->mTimeDividor;
     }
 
     bool operator<(Timer const &other) const noexcept {
@@ -55,7 +56,7 @@ class TimerManager final : public BanCopyMove  {
   int64_t mWatchdogLength;
 
   /// Can be anything from 1 up
-  static double sTimeDividor;
+  double mTimeDividor;
 
   /// True if only watchdog events are considered
   bool    mPaused     = false;

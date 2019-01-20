@@ -18,6 +18,7 @@ Event::Event(EventType const aType, OnOffState const aArg) noexcept : mType(aTyp
   if(aType != EventType::MeasuredSalt &&
      aType != EventType::MeasuredSpray &&
      aType != EventType::MeasuredLeak &&
+     mType != EventType::DesiredSpray &&
      aType != EventType::DesiredCirc &&
      aType != EventType::DesiredResinWash) {
     mType = EventType::Error;
@@ -146,7 +147,9 @@ void Component::queueEvent(const Event &aEvent) noexcept {
   }
   else { // nothing to do
   }
-  if(aEvent.getType() == EventType::Error || (mErrorSoFar.load() == cNoError && shouldBeQueued(aEvent))) {
+  if(aEvent.getType() == EventType::Error ||
+     (mErrorSoFar.load() == cNoError &&
+        (aEvent.getType() == EventType::TimeFactorChanged || shouldBeQueued(aEvent)))) {
     if(!mQueue.bounded_push(aEvent)) {
       raise(Error::Queue);
     }
@@ -189,6 +192,11 @@ void Component::run() noexcept {
         Event event;
         while(mQueue.pop(event)) {
           if(mErrorSoFar.load() == cNoError || event.getType() == EventType::Error) {
+            if(event.getType() == EventType::TimeFactorChanged) {
+              mTimerManager.setTimeDividor(event.getIntValue());
+            }
+            else { // nothing to do
+            }
             process(event);
           }
           else { // nothing to do
@@ -211,12 +219,6 @@ void Component::run() noexcept {
 }
 
 void Component::raise(Error const aError) noexcept {
-  mErrorSoFar |= static_cast<int32_t>(aError);
-  mDishwasher->send(this, Event(aError));
-}
-
-void Component::raise(Error const aError, char const * const aReason) noexcept {
-  Log::i(nowtech::LogApp::cError) << aReason << Log::end;
   mErrorSoFar |= static_cast<int32_t>(aError);
   mDishwasher->send(this, Event(aError));
 }

@@ -186,7 +186,17 @@ void Display::refresh() noexcept {
   else if(keyPressed == cCtrlC) {
     Dishwasher::stop();
   }
-  else { // nothing to do
+  else {
+    auto found = std::find(cButtonsTimerFactor, cButtonsTimerFactor + sizeof(cButtonsTimerFactor), keyPressed);
+    if(found != cButtonsTimerFactor + sizeof(cButtonsTimerFactor)) {
+      // needs to arrange it here, because won't receive the event sent by itself
+      mTimerFactor = cTimerFactors[found - cButtonsTimerFactor];
+      mTimerManager.setTimeDividor(mTimerFactor);
+      send(EventType::TimeFactorChanged, mTimerFactor);
+      mNeedsRefresh = true;
+    }
+    else { // nothing to do
+    }
   }
   if(mNeedsRefresh) { // Will be enough to display the remaining time as well, because there are frequent measurements.
     mvaddstr(cStartSensorValues.y + 6, cStartSensorValues.x, Event::cStrDoorState[static_cast<int32_t>(mDoor) + 1]);

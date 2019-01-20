@@ -13,14 +13,18 @@ int main(int argc, char **argv) {
   char defaultLogFilename[] = "dishwasher.log";
   try {
     nowtech::LogConfig logConfig;
-    logConfig.taskRepresentation = nowtech::LogConfig::TaskRepresentation::cName;
-    logConfig.refreshPeriod      = 200u;
+    logConfig.taskRepresentation   = nowtech::LogConfig::TaskRepresentation::cName;
+    logConfig.queueLength          = 8192u;
+    logConfig.circularBufferLength = 8192u;
+    logConfig.transmitBufferLength = 8192u;
+    logConfig.refreshPeriod        =  200u;
     std::ofstream logFile(argc == 1 ? defaultLogFilename : argv[1]);
     nowtech::LogStdThreadOstream osInterface(logFile, logConfig);
     nowtech::Log log(osInterface, logConfig);
     Log::registerApp(nowtech::LogApp::cSystem,   "system  ");
     //Log::registerApp(nowtech::LogApp::cWatchdog, "watchdog");
     Log::registerApp(nowtech::LogApp::cEvent,    "event   ");
+    Log::registerApp(nowtech::LogApp::cError,    "error   ");
     Log::registerCurrentTask("main   ");
 
     Input input;

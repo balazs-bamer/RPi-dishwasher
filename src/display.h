@@ -77,7 +77,7 @@ private:
   int32_t      mRemainingTime = 0;
   int32_t      mTimerFactor   = 1;
 
-  bool         mNeedsRefresh  = false;
+  bool         mNeedsRefresh  = true;
 
 public:
   Display(); // TODO this should take a mutex for I2C access control
@@ -147,9 +147,6 @@ private:
     }
     else if(type == EventType::RemainingTime) {
       mRemainingTime = aEvent.getIntValue();
-    }
-    else if(type == EventType::TimeFactorChanged) {
-      mTimerFactor = aEvent.getIntValue();
     }
     else { // nothing to do
     }

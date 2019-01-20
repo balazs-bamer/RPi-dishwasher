@@ -30,7 +30,7 @@ void Input::process(Event const &aEvent) noexcept {
     int32_t keyPressed = aEvent.getIntValue();
     auto found = std::find(cButtonsProgram, cButtonsProgram + sizeof(cButtonsProgram), keyPressed);
     if(found < cButtonsProgram + sizeof(cButtonsProgram)) {
-      send(Event(static_cast<Program>(found - cButtonsProgram)));
+      send(Event(static_cast<Program>(found - cButtonsProgram - 1)));
     }
     else { // nothing to do
     }

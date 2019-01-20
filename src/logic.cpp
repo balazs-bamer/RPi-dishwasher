@@ -62,7 +62,7 @@ void Logic::nextState() noexcept {
 
 void Logic::process(Program const aProgram) noexcept {
   if(mState == MachineState::Idle) {
-    if(aProgram != Program::Stop) {
+    if(aProgram != Program::Stop && aProgram != Program::None) {
       mProgram = aProgram;
       nextState();
       int32_t remainingMilliseconds = 0;
@@ -78,17 +78,20 @@ void Logic::process(Program const aProgram) noexcept {
           state = static_cast<MachineState>(static_cast<int32_t>(state) + 1);
         } while(state != MachineState::Shutdown && cWaitMinutes[static_cast<int>(mProgram)][static_cast<int>(state)] == No);
       } while(state != MachineState::Shutdown);
-      send(EventType::RemainingTime, remainingMilliseconds);
+      send(EventType::RemainingTime, remainingMilliseconds / cMsInMinute);
     }
     else { // nothing to do
     }
   }
   else {
     if(aProgram == Program::Stop) {
-      mProgram = Program::None;
-      mState = MachineState::Idle;
       turnOffAll();
       mTimerManager.cancelAll();
+      mProgram = Program::None;
+      mState = MachineState::Idle;
+      send(mState);
+      send(mProgram);
+      send(EventType::RemainingTime, 0);
     }
     else { // nothing to do
     }

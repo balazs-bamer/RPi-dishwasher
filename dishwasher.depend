@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1547929899 source:/home/balazs/munka/mosogatogep/prg/src/automat.cpp
+1548010956 source:/home/balazs/munka/mosogatogep/prg/src/automat.cpp
 	"dishwash-config.h"
 	"automat.h"
 	"dishwash.h"
@@ -7,7 +7,7 @@
 1546369782 /home/balazs/munka/mosogatogep/prg/src/automat.h
 	"base.h"
 
-1547929839 /home/balazs/munka/mosogatogep/prg/src/base.h
+1547971468 /home/balazs/munka/mosogatogep/prg/src/base.h
 	"dishwash-config.h"
 	"bancopymove.h"
 	"timer.h"
@@ -22,7 +22,7 @@
 1546250509 /home/balazs/munka/mosogatogep/prg/src/dishwash-config.h
 	<cstdint>
 
-1547924867 /home/balazs/munka/mosogatogep/prg/src/dishwash.h
+1548015221 /home/balazs/munka/mosogatogep/prg/src/dishwash.h
 	"base.h"
 	<vector>
 
@@ -35,13 +35,13 @@
 1546369854 /home/balazs/munka/mosogatogep/prg/src/logic.h
 	"base.h"
 
-1546372935 /home/balazs/munka/mosogatogep/prg/src/display.h
+1548015283 /home/balazs/munka/mosogatogep/prg/src/display.h
 	"base.h"
 
 1546369906 /home/balazs/munka/mosogatogep/prg/src/output.h
 	"base.h"
 
-1547929999 source:/home/balazs/munka/mosogatogep/prg/src/base.cpp
+1548012780 source:/home/balazs/munka/mosogatogep/prg/src/base.cpp
 	"dishwash.h"
 	<mutex>
 
@@ -49,15 +49,15 @@
 	"dishwash.h"
 	<signal.h>
 
-1546252613 source:/home/balazs/munka/mosogatogep/prg/src/logic.cpp
+1548010969 source:/home/balazs/munka/mosogatogep/prg/src/logic.cpp
 	"logic.h"
 	"dishwash.h"
 
-1546251255 source:/home/balazs/munka/mosogatogep/prg/src/staticerror.cpp
+1548010950 source:/home/balazs/munka/mosogatogep/prg/src/staticerror.cpp
 	"staticerror.h"
 	"dishwash.h"
 
-1547924607 source:/home/balazs/munka/mosogatogep/prg/src/test-display.cpp
+1548015090 source:/home/balazs/munka/mosogatogep/prg/src/test-display.cpp
 	"display.h"
 	"dishwash.h"
 	"test-keyboard.h"
@@ -67,13 +67,13 @@
 	<cctype>
 	<algorithm>
 
-1547065742 source:/home/balazs/munka/mosogatogep/prg/src/test-input.cpp
+1547986646 source:/home/balazs/munka/mosogatogep/prg/src/test-input.cpp
 	<curses.h>
 	"input.h"
 	"dishwash.h"
 	"test-keyboard.h"
 
-1547924875 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
+1548011487 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
 	"input.h"
 	"logic.h"
 	"automat.h"
@@ -88,14 +88,14 @@
 	"output.h"
 	"dishwash.h"
 
-1547930592 /home/balazs/munka/mosogatogep/prg/src/timer.h
+1548012610 /home/balazs/munka/mosogatogep/prg/src/timer.h
 	"bancopymove.h"
 	<array>
 	<thread>
 	<chrono>
 	<optional>
 
-1547035723 source:/home/balazs/munka/mosogatogep/prg/src/log/log.cpp
+1547978999 source:/home/balazs/munka/mosogatogep/prg/src/log/log.cpp
 	"log.h"
 	"logutil.h"
 
@@ -135,8 +135,9 @@
 
 1545223283 /home/balazs/munka/mosogatogep/prg/src/bancopymove.h
 
-1547930464 source:/home/balazs/munka/mosogatogep/prg/src/timer.cpp
+1548012664 source:/home/balazs/munka/mosogatogep/prg/src/timer.cpp
 	"timer.h"
+	"log.h"
 	<cmath>
 	<algorithm>
 
