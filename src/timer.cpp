@@ -1,5 +1,5 @@
 #include "timer.h"
-#include "log.h"
+#include "Log.h"
 #include <cmath>
 #include <algorithm>
 

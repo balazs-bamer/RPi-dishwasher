@@ -4,7 +4,7 @@
 #include "dishwash-config.h"
 #include "bancopymove.h"
 #include "timer.h"
-#include "log.h"
+#include "Log.h"
 
 #include <chrono>
 #include <atomic>

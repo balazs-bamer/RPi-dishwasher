@@ -7,11 +7,11 @@
 1546369782 /home/balazs/munka/mosogatogep/prg/src/automat.h
 	"base.h"
 
-1547971468 /home/balazs/munka/mosogatogep/prg/src/base.h
+1548094700 /home/balazs/munka/mosogatogep/prg/src/base.h
 	"dishwash-config.h"
 	"bancopymove.h"
 	"timer.h"
-	"log.h"
+	"Log.h"
 	<chrono>
 	<atomic>
 	<thread>
@@ -49,7 +49,7 @@
 	"dishwash.h"
 	<signal.h>
 
-1548010969 source:/home/balazs/munka/mosogatogep/prg/src/logic.cpp
+1548015624 source:/home/balazs/munka/mosogatogep/prg/src/logic.cpp
 	"logic.h"
 	"dishwash.h"
 
@@ -73,7 +73,7 @@
 	"dishwash.h"
 	"test-keyboard.h"
 
-1548011487 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
+1548094644 source:/home/balazs/munka/mosogatogep/prg/src/test-main.cpp
 	"input.h"
 	"logic.h"
 	"automat.h"
@@ -81,7 +81,7 @@
 	"staticerror.h"
 	"output.h"
 	"dishwash.h"
-	"logstdthreadostream.h"
+	"LogStdThreadOstream.h"
 	<fstream>
 
 1546263103 source:/home/balazs/munka/mosogatogep/prg/src/test-output.cpp
@@ -142,4 +142,40 @@
 	<algorithm>
 
 1547065573 /home/balazs/munka/mosogatogep/prg/src/test-keyboard.h
+
+1548095224 /home/balazs/munka/mosogatogep/prg/src/log/Log.h
+	"BanCopyMove.h"
+	<cstdint>
+	<type_traits>
+	<atomic>
+	<limits>
+	<cmath>
+	<map>
+
+1548085769 source:/home/balazs/munka/mosogatogep/prg/src/log/Log.cpp
+	"Log.h"
+	"LogUtil.h"
+
+1548085912 /home/balazs/munka/mosogatogep/prg/src/log/LogUtil.h
+	"Log.h"
+	<atomic>
+
+1548085873 source:/home/balazs/munka/mosogatogep/prg/src/log/LogStdThreadOstream.cpp
+	"LogStdThreadOstream.h"
+
+1548085882 /home/balazs/munka/mosogatogep/prg/src/log/LogStdThreadOstream.h
+	"Log.h"
+	<mutex>
+	<atomic>
+	<thread>
+	<chrono>
+	<string>
+	<string>
+	<ostream>
+	<functional>
+	<condition_variable>
+	<boost/lockfree/queue.hpp>
+
+1548085905 source:/home/balazs/munka/mosogatogep/prg/src/log/LogUtil.cpp
+	"LogUtil.h"
 

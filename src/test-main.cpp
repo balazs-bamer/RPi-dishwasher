@@ -5,7 +5,7 @@
 #include "staticerror.h"
 #include "output.h"
 #include "dishwash.h"
-#include "logstdthreadostream.h"
+#include "LogStdThreadOstream.h"
 
 #include <fstream>
 
